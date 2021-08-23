@@ -11,7 +11,7 @@ const App = () => {
       <h1>Hello, world!</h1>
       <Clock />
       <div className={s.media}>
-        <img src={image} alt="Image" />
+        <img className={s.image} src={image} alt="Image" />
       </div>
     </div>
   );
