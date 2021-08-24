@@ -1,8 +1,60 @@
-@height: 80px;
-@width: 100vw;
-
 .header {
+  .flex();
   height: @height;
   width: @width;
-  background: url("/src/assets/bg.jpg");
+  background: url("@{images}/@{header-background-image}");
+}
+
+.@{wrapper} {
+  .grow();
+  .flex();
+  &-@{content} {
+    .grow();
+    .flex();
+    justify-content: space-around;
+    align-items: center;
+    font: normal small-caps normal 16px/1.4 Georgia;
+    @{property}: @menu-item-color;
+    cursor: pointer;
+    &:hover {
+      background-@{property}: @menu-item-hover-bgcolor;
+      @{property}: @menu-item-color-hover;
+      & + .@{wrapper}-@{content} {
+        @color: secondary;
+        background-@{property}: @menu-item-hover-next-bgcolor;
+        @{property}: @menu-item-color-hover-next;
+      }
+    }
+  }
+}
+
+// Variables
+
+@height: 80px;
+@width: 100vw;
+@primary: azure;
+@secondary: rgb(150, 200, 100);
+@color: primary;
+@menu-item-color: @@color;
+@menu-item-color-hover: darken(@menu-item-color, 20%);
+@menu-item-color-hover-next: darken(@menu-item-color, 10%);
+@menu-item-hover-bgcolor: rgba(200, 200, 150, 0.5);
+@menu-item-hover-next-bgcolor: rgba(200, 200, 150, 0.2);
+@wrapper: menu;
+@content: item;
+@images: "/src/assets";
+@header-background-image: "bg.jpg";
+@themes: "/src/themes";
+@property: color;
+
+// @import "@{themes}/light.less";
+
+// Mixins
+
+.flex() {
+  display: flex;
+}
+
+.grow() {
+  flex-grow: 1;
 }
