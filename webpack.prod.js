@@ -44,6 +44,6 @@ module.exports = {
   },
   plugins: [new HtmlWebpackPlugin(), new MiniCssExtractPlugin()],
   optimization: {
-    minimizer: [new CssMinimizerPlugin(), new TerserPlugin()],
+    minimizer: [new TerserPlugin(), new CssMinimizerPlugin()],
   },
 };
