@@ -1,20 +1,41 @@
-import React from "react";
-import s from "./App.module.css";
-import Header from "./Header/Header.jsx";
-import Clock from "./Clock/Clock.jsx";
-import image from "../assets/image.jpg";
+import React, { useState } from "react";
+import { Menu } from "semantic-ui-react";
+import Home from "./Home";
+import Shooting from "./Shooting";
 
-const App = () => {
+const MenuExampleBasic = () => {
+  const [activeItem, setActiveItem] = useState({ activeItem: "home" });
+  const handleItemClick = (e, { name }) => setActiveItem({ activeItem: name });
   return (
     <div>
-      <Header />
-      <h1>Hello, world!</h1>
-      <Clock />
-      <div className={s.media}>
-        <img className={s.image} src={image} alt="Image" />
-      </div>
+      <Menu>
+        <Menu.Item
+          name="home"
+          active={activeItem === "home"}
+          onClick={handleItemClick}
+        >
+          Home
+        </Menu.Item>
+        <Menu.Item
+          name="shooting"
+          active={activeItem === "shooting"}
+          onClick={handleItemClick}
+        >
+          Shooting
+        </Menu.Item>
+        <Menu.Item
+          disabled
+          name="NHL"
+          active={activeItem === "NHL"}
+          onClick={handleItemClick}
+        >
+          NHL
+        </Menu.Item>
+      </Menu>
+      {activeItem.activeItem === "home" && <Home />}
+      {activeItem.activeItem === "shooting" && <Shooting />}
     </div>
   );
 };
 
-export default App;
+export default MenuExampleBasic;

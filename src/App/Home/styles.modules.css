@@ -1,0 +1,17 @@
+body {
+  margin: 0;
+}
+
+h1 {
+  text-align: center;
+  font: normal italic 110% serif;
+}
+
+.media {
+  display: flex;
+  justify-content: center;
+}
+
+.image {
+  max-width: 100vw;
+}
