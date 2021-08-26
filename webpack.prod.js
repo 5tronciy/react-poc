@@ -10,6 +10,11 @@ module.exports = {
   module: {
     rules: [
       {
+        test: /\.tsx?$/,
+        use: "ts-loader",
+        exclude: /node_modules/,
+      },
+      {
         test: /\.(png|jpe?g|gif)$/i,
         type: "asset/resource",
         generator: {
@@ -36,7 +41,7 @@ module.exports = {
     ],
   },
   resolve: {
-    extensions: ["*", ".js", ".jsx"],
+    extensions: ["*", ".js", ".jsx", ".tsx", ".ts"],
   },
   output: {
     path: path.resolve(__dirname, "build"),
