@@ -4,36 +4,29 @@ import Home from "./Home";
 import Shooting from "./Shooting";
 
 const MenuExampleBasic = () => {
-  const [activeItem, setActiveItem] = useState({ activeItem: "home" });
-  const handleItemClick = (e, { name }) => setActiveItem({ activeItem: name });
+  const [state, setState] = useState({ activeItem: "shooting" });
+  const handleItemClick = (e, { name }) => setState({ activeItem: name });
   return (
     <div>
       <Menu>
         <Menu.Item
           name="home"
-          active={activeItem === "home"}
+          active={state.activeItem === "home"}
           onClick={handleItemClick}
         >
           Home
         </Menu.Item>
         <Menu.Item
           name="shooting"
-          active={activeItem === "shooting"}
+          active={state.activeItem === "shooting"}
           onClick={handleItemClick}
         >
           Shooting
         </Menu.Item>
-        <Menu.Item
-          disabled
-          name="NHL"
-          active={activeItem === "NHL"}
-          onClick={handleItemClick}
-        >
-          NHL
-        </Menu.Item>
+        <Menu.Item disabled>NHL</Menu.Item>
       </Menu>
-      {activeItem.activeItem === "home" && <Home />}
-      {activeItem.activeItem === "shooting" && <Shooting />}
+      {state.activeItem === "home" && <Home />}
+      {state.activeItem === "shooting" && <Shooting />}
     </div>
   );
 };
