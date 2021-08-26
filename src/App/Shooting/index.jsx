@@ -60,14 +60,14 @@ const Shooting = () => {
   const [edit, setEdit] = useState(initial.editable);
   const onEdit = () => setEdit(!edit);
   return (
-    <Table padded>
+    <Table padded textAlign="center" unstackable>
       <Table.Header>
         <Table.Row>
-          <Table.HeaderCell>Yard</Table.HeaderCell>
-          <Table.HeaderCell>Meter</Table.HeaderCell>
-          <Table.HeaderCell>GA</Table.HeaderCell>
-          <Table.HeaderCell>#</Table.HeaderCell>
-          <Table.HeaderCell>
+          <Table.HeaderCell width="6">Yard</Table.HeaderCell>
+          <Table.HeaderCell width="3">Meter</Table.HeaderCell>
+          <Table.HeaderCell width="3">GA</Table.HeaderCell>
+          <Table.HeaderCell width="6">#</Table.HeaderCell>
+          <Table.HeaderCell width="3" textAlign="right">
             <Icon
               name={edit === true ? "edit" : "edit outline"}
               onClick={onEdit}
