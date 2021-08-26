@@ -49,7 +49,7 @@ const Shooting = () => {
       produce((draft) => {
         draft.push({
           id: uuidv4(),
-          distance: 0,
+          distance: data[data.length - 1].distance + 5,
           correction: 0,
           tools: new YardTools(0),
         });
