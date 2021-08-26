@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { Table, Icon } from "semantic-ui-react";
+import { Table, Icon, Button } from "semantic-ui-react";
 import produce from "immer";
 import { YardTools, IFAAGroup } from "../../utils/YardTools";
+import { v4 as uuidv4 } from "uuid";
 
 const initial = {
   editable: false,
@@ -29,6 +30,7 @@ const Shooting = () => {
       produce((draft) => {
         const item = draft.find((item) => item.id === id);
         item.distance += Number(operator);
+        item.tools = new YardTools(item.distance);
       })
     );
   };
@@ -38,6 +40,19 @@ const Shooting = () => {
       produce((draft) => {
         const item = draft.find((item) => item.id === id);
         item.correction += Number(operator);
+      })
+    );
+  };
+
+  const onAddRow = () => {
+    setData(
+      produce((draft) => {
+        draft.push({
+          id: uuidv4(),
+          distance: 0,
+          correction: 0,
+          tools: new YardTools(0),
+        });
       })
     );
   };
@@ -98,6 +113,17 @@ const Shooting = () => {
             <Table.Cell></Table.Cell>
           </Table.Row>
         ))}
+        {edit && (
+          <Table.Row>
+            <Table.Cell></Table.Cell>
+            <Table.Cell></Table.Cell>
+            <Table.Cell></Table.Cell>
+            <Table.Cell>
+              <Button content="Add row" onClick={onAddRow} />
+            </Table.Cell>
+            <Table.Cell></Table.Cell>
+          </Table.Row>
+        )}
       </Table.Body>
     </Table>
   );
