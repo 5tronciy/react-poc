@@ -25,7 +25,6 @@ const NHL = () => {
       name: "%" + searchPlayer + "%",
     },
   };
-
   useEffect(() => {
     fetch(
       `${process.env.SERVER_REST}/team?cayenneExp=${encodeURIComponent(
@@ -93,7 +92,6 @@ const NHL = () => {
           ))}
         </List>
       </div>
-
       <div className="players-wrapper">
         <div className="players-searchBar">
           <Input
@@ -115,16 +113,16 @@ const NHL = () => {
         <div className="players">
           {players.map((player) => (
             <Card key={player.id} style={{ margin: "1em" }}>
+              <Image
+                src={`https://cms.nhl.bamgrid.com/images/headshots/current/168x168/${player.id}.jpg`}
+                label={{
+                  as: "a",
+                  color: "orange",
+                  content: player.position,
+                  ribbon: "right",
+                }}
+              />
               <Card.Content>
-                <Image
-                  src={`https://cms.nhl.bamgrid.com/images/headshots/current/168x168/${player.id}.jpg`}
-                  label={{
-                    as: "a",
-                    color: "orange",
-                    content: player.position,
-                    ribbon: "right",
-                  }}
-                />
                 <Card.Header>
                   {`${player.firstName} ${player.lastName}`}
                 </Card.Header>
