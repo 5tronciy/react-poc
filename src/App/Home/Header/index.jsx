@@ -3,7 +3,7 @@ import "./styles.less";
 
 const Header = () => {
   return (
-    <div className="header">
+    <div className="home-header">
       <div className="menu">
         <div className="menu-item">a</div>
         <div className="menu-item">b</div>
