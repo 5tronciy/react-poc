@@ -8,22 +8,20 @@ export const Teams = ({ selectedTeam, setSelectedTeam }) => {
   const [tempSearchTeam, setTempSearchTeam] = useState("");
   const [searchTeam, setSearchTeam] = useState("");
 
-  useEffect(() => {
+  useEffect(async () => {
     const filterTeam = {
       exp: "commonName like $name",
       params: {
         name: "%" + searchTeam + "%",
       },
     };
-    fetch(
+    const response = await fetch(
       `${process.env.SERVER_REST}/team?cayenneExp=${encodeURIComponent(
         JSON.stringify(filterTeam)
       )}&sort=commonName`
-    )
-      .then((res) => res.json())
-      .then((data) => {
-        setTeams(data.data);
-      });
+    );
+    const data = await response.json();
+    setTeams(data.data);
     setSelectedTeam("");
   }, [searchTeam]);
 

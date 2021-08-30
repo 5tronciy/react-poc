@@ -8,7 +8,7 @@ export const Players = ({ team }) => {
   const [tempSearchPlayer, setTempSearchPlayer] = useState("");
   const [searchPlayer, setSearchPlayer] = useState("");
 
-  useEffect(() => {
+  useEffect(async () => {
     const filterPlayer = {
       exp: "team.commonName = $team and lastName like $name",
       params: {
@@ -16,17 +16,15 @@ export const Players = ({ team }) => {
         name: "%" + searchPlayer + "%",
       },
     };
-    fetch(
+    const response = await fetch(
       `${
         process.env.SERVER_REST
       }/player?include=team&cayenneExp=${encodeURIComponent(
         JSON.stringify(filterPlayer)
       )}&sort=lastName`
-    )
-      .then((res) => res.json())
-      .then((data) => {
-        setPlayers(data.data);
-      });
+    );
+    const data = await response.json();
+    setPlayers(data.data);
   }, [team, searchPlayer]);
 
   useEffect(() => {
