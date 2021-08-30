@@ -10,7 +10,7 @@ const NHL = () => {
 
   return (
     <div className="wrapper">
-      <Teams setSelectedTeam={setSelectedTeam} />
+      <Teams selectedTeam={selectedTeam} setSelectedTeam={setSelectedTeam} />
       {selectedTeam && <Players team={selectedTeam} />}
     </div>
   );

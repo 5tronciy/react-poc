@@ -1,10 +1,22 @@
 import React from "react";
-import { Input, Button } from "semantic-ui-react";
+import { Input, Button, Icon } from "semantic-ui-react";
+import "./SearchBar.less";
 
 export const SearchBar = ({ tempSearch, setTempSearch, setSearch, name }) => {
   return (
-    <div className={`${name}s-searchBar`}>
+    <div className="searchBar">
       <Input
+        size="large"
+        action={
+          <Button
+            icon
+            onClick={() => {
+              setSearch(tempSearch);
+            }}
+          >
+            <Icon name="search" />
+          </Button>
+        }
         placeholder={`Find ${name}`}
         type="text"
         value={tempSearch}
@@ -12,13 +24,6 @@ export const SearchBar = ({ tempSearch, setTempSearch, setSearch, name }) => {
           setTempSearch(e.currentTarget.value);
         }}
       />
-      <Button
-        onClick={() => {
-          setSearch(tempSearch);
-        }}
-      >
-        Find
-      </Button>
     </div>
   );
 };
