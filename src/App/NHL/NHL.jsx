@@ -4,57 +4,78 @@ import "./NHL.less";
 
 const NHL = () => {
   const [teams, setTeams] = useState([]);
-  const [tempSearch, setTempSearch] = useState([]);
-  const [search, setSearch] = useState("");
-  const [selectedTeam, setSelectedTeam] = useState(null);
+  const [tempSearchTeam, setTempSearchTeam] = useState("");
+  const [searchTeam, setSearchTeam] = useState("");
+  const [selectedTeam, setSelectedTeam] = useState("");
   const [players, setPlayers] = useState([]);
+  const [tempSearchPlayer, setTempSearchPlayer] = useState("");
+  const [searchPlayer, setSearchPlayer] = useState("");
 
-  const filter = {
+  const filterTeam = {
     exp: "commonName like $name",
     params: {
-      name: "%" + search + "%",
+      name: "%" + searchTeam + "%",
+    },
+  };
+
+  const filterPlayer = {
+    exp: "team.commonName = $team and lastName like $name",
+    params: {
+      team: selectedTeam,
+      name: "%" + searchPlayer + "%",
     },
   };
 
   useEffect(() => {
     fetch(
       `${process.env.SERVER_REST}/team?cayenneExp=${encodeURIComponent(
-        JSON.stringify(filter)
+        JSON.stringify(filterTeam)
       )}&sort=commonName`
     )
       .then((res) => res.json())
       .then((data) => {
         setTeams(data.data);
       });
-  }, [search]);
+    setSelectedTeam("");
+  }, [searchTeam]);
 
   useEffect(() => {
     if (!!selectedTeam) {
       fetch(
-        `${process.env.SERVER_REST}/player?include=team&cayenneExp=team.commonName="${selectedTeam}"&sort=lastName`
+        `${
+          process.env.SERVER_REST
+        }/player?include=team&cayenneExp=${encodeURIComponent(
+          JSON.stringify(filterPlayer)
+        )}&sort=lastName`
       )
         .then((res) => res.json())
         .then((data) => {
-          console.log(data.data);
           setPlayers(data.data);
         });
+    } else {
+      setPlayers([]);
     }
+  }, [selectedTeam, searchPlayer]);
+
+  useEffect(() => {
+    setTempSearchPlayer("");
+    setSearchPlayer("");
   }, [selectedTeam]);
 
   return (
     <div className="wrapper">
       <div className="teams">
         <Input
-          placeholder="Find team "
+          placeholder="Find team"
           type="text"
-          value={tempSearch}
+          value={tempSearchTeam}
           onChange={(e) => {
-            setTempSearch(e.currentTarget.value);
+            setTempSearchTeam(e.currentTarget.value);
           }}
         />
         <Button
           onClick={() => {
-            setSearch(tempSearch);
+            setSearchTeam(tempSearchTeam);
           }}
         >
           Find
@@ -72,26 +93,46 @@ const NHL = () => {
           ))}
         </ul>
       </div>
-      <div className="players">
-        {players.map((player) => (
-          <Card key={player.id} style={{ margin: "1em" }}>
-            <Card.Content>
-              <Image
-                src={`https://cms.nhl.bamgrid.com/images/headshots/current/168x168/${player.id}.jpg`}
-                label={{
-                  as: "a",
-                  color: "orange",
-                  content: player.position,
-                  ribbon: "right",
-                }}
-              />
-              <Card.Header>
-                {`${player.firstName} ${player.lastName}`}
-              </Card.Header>
-              <Card.Meta>{player.birthDate}</Card.Meta>
-            </Card.Content>
-          </Card>
-        ))}
+
+      <div className="players-wrapper">
+        <div className="players-searchBar">
+          <Input
+            placeholder="Find player"
+            type="text"
+            value={tempSearchPlayer}
+            onChange={(e) => {
+              setTempSearchPlayer(e.currentTarget.value);
+            }}
+          />
+          <Button
+            onClick={() => {
+              setSearchPlayer(tempSearchPlayer);
+            }}
+          >
+            Find
+          </Button>
+        </div>
+        <div className="players">
+          {players.map((player) => (
+            <Card key={player.id} style={{ margin: "1em" }}>
+              <Card.Content>
+                <Image
+                  src={`https://cms.nhl.bamgrid.com/images/headshots/current/168x168/${player.id}.jpg`}
+                  label={{
+                    as: "a",
+                    color: "orange",
+                    content: player.position,
+                    ribbon: "right",
+                  }}
+                />
+                <Card.Header>
+                  {`${player.firstName} ${player.lastName}`}
+                </Card.Header>
+                <Card.Meta>{player.birthDate}</Card.Meta>
+              </Card.Content>
+            </Card>
+          ))}
+        </div>
       </div>
     </div>
   );
