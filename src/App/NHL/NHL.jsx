@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Input, Button, Card, Icon, Image } from "semantic-ui-react";
+import { Input, Button, Card, List, Image } from "semantic-ui-react";
 import "./NHL.less";
 
 const NHL = () => {
@@ -80,18 +80,18 @@ const NHL = () => {
         >
           Find
         </Button>
-        <ul>
+        <List>
           {teams.map((team) => (
-            <li
+            <List.Item
               key={team.id}
               onClick={() => {
                 setSelectedTeam(team.commonName);
               }}
             >
               {team.commonName}
-            </li>
+            </List.Item>
           ))}
-        </ul>
+        </List>
       </div>
 
       <div className="players-wrapper">
