@@ -40,7 +40,7 @@ const NHL = () => {
   }, [searchTeam]);
 
   useEffect(() => {
-    if (!!selectedTeam) {
+    if (selectedTeam) {
       fetch(
         `${
           process.env.SERVER_REST
