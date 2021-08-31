@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { List, Image } from "semantic-ui-react";
-import "./TeamsList.less";
+import s from "./TeamsList.less";
 import { SearchBar } from "../SearchBar/SearchBar";
 
 export const TeamsList = ({ selectedTeam, setSelectedTeam }) => {
@@ -26,7 +26,7 @@ export const TeamsList = ({ selectedTeam, setSelectedTeam }) => {
   }, [searchTeam]);
 
   return (
-    <div className="teams">
+    <div className={s.teams}>
       <SearchBar
         tempSearch={tempSearchTeam}
         setTempSearch={setTempSearchTeam}

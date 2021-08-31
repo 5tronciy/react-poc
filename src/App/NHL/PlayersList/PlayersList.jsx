@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import "./PlayersList.less";
+import s from "./PlayersList.less";
 import { SearchBar } from "../SearchBar/SearchBar";
 import { PlayerCard } from "../PlayerCard/PlayerCard";
 
@@ -33,14 +33,16 @@ export const PlayersList = ({ team }) => {
   }, [team]);
 
   return (
-    <div className="players-wrapper">
-      <SearchBar
-        tempSearch={tempSearchPlayer}
-        setTempSearch={setTempSearchPlayer}
-        setSearch={setSearchPlayer}
-        name="player"
-      />
-      <div className="players">
+    <div>
+      <div>
+        <SearchBar
+          tempSearch={tempSearchPlayer}
+          setTempSearch={setTempSearchPlayer}
+          setSearch={setSearchPlayer}
+          name="player"
+        />
+      </div>
+      <div className={s.players}>
         {players.map((player) => (
           <PlayerCard key={player.id} player={player} />
         ))}

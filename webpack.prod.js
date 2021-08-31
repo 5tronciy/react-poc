@@ -40,7 +40,16 @@ module.exports = {
       },
       {
         test: /\.less$/i,
-        use: [MiniCssExtractPlugin.loader, "css-loader", "less-loader"],
+        use: [
+          MiniCssExtractPlugin.loader,
+          {
+            loader: "css-loader",
+            options: {
+              modules: true,
+            },
+          },
+          "less-loader",
+        ],
       },
       {
         test: /\.s[ac]ss$/i,
