@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-import "./Players.less";
+import "./PlayersList.less";
 import { SearchBar } from "../SearchBar/SearchBar";
 import { PlayerCard } from "../PlayerCard/PlayerCard";
 
-export const Players = ({ team }) => {
+export const PlayersList = ({ team }) => {
   const [players, setPlayers] = useState([]);
   const [tempSearchPlayer, setTempSearchPlayer] = useState("");
   const [searchPlayer, setSearchPlayer] = useState("");
