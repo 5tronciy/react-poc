@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Menu } from "semantic-ui-react";
 import Home from "./Home";
 import Shooting from "./Shooting";
-import NHL from "./NHL/NHL";
+import Nhl from "./NHL/Nhl";
 import "./App.less";
 
 const MenuExampleBasic = () => {
@@ -35,7 +35,7 @@ const MenuExampleBasic = () => {
       </Menu>
       {state.activeItem === "home" && <Home />}
       {state.activeItem === "shooting" && <Shooting />}
-      {state.activeItem === "nhl" && <NHL />}
+      {state.activeItem === "nhl" && <Nhl />}
     </div>
   );
 };
