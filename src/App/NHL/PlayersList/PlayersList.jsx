@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import s from "./PlayersList.less";
 import { SearchBar } from "../SearchBar/SearchBar";
 import { PlayerCard } from "../PlayerCard/PlayerCard";
+import { myFetch } from "../../../utils/myFetch";
 
 export const PlayersList = ({ team }) => {
   const [players, setPlayers] = useState([]);
@@ -16,13 +17,11 @@ export const PlayersList = ({ team }) => {
         name: "%" + searchPlayer + "%",
       },
     };
-    const response = await fetch(
-      `${
-        process.env.SERVER_REST
-      }/player?include=team&cayenneExp=${encodeURIComponent(
-        JSON.stringify(filterPlayer)
-      )}&sort=lastName`
-    );
+    const response = await myFetch("player", {
+      filter: filterPlayer,
+      include: ["team"],
+      order: "lastName",
+    });
     const data = await response.json();
     setPlayers(data.data);
   }, [team, searchPlayer]);

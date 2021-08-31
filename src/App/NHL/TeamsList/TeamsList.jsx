@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { List, Image } from "semantic-ui-react";
 import s from "./TeamsList.less";
 import { SearchBar } from "../SearchBar/SearchBar";
+import { myFetch } from "../../../utils/myFetch";
 
 export const TeamsList = ({ selectedTeam, setSelectedTeam }) => {
   const [teams, setTeams] = useState([]);
@@ -15,11 +16,10 @@ export const TeamsList = ({ selectedTeam, setSelectedTeam }) => {
         name: "%" + searchTeam + "%",
       },
     };
-    const response = await fetch(
-      `${process.env.SERVER_REST}/team?cayenneExp=${encodeURIComponent(
-        JSON.stringify(filterTeam)
-      )}&sort=commonName`
-    );
+    const response = await myFetch("team", {
+      filter: filterTeam,
+      order: "commonName",
+    });
     const data = await response.json();
     setTeams(data.data);
     setSelectedTeam("");
