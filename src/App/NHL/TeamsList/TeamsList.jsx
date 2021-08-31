@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { List, Image } from "semantic-ui-react";
-import "./Teams.less";
+import "./TeamsList.less";
 import { SearchBar } from "../SearchBar/SearchBar";
 
-export const Teams = ({ selectedTeam, setSelectedTeam }) => {
+export const TeamsList = ({ selectedTeam, setSelectedTeam }) => {
   const [teams, setTeams] = useState([]);
   const [tempSearchTeam, setTempSearchTeam] = useState("");
   const [searchTeam, setSearchTeam] = useState("");

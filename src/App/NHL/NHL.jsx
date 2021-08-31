@@ -2,7 +2,7 @@ import React, { useState } from "react";
 
 import "./NHL.less";
 
-import { Teams } from "./Teams/Teams";
+import { TeamsList } from "./TeamsList/TeamsList";
 import { PlayersList } from "./PlayersList/PlayersList";
 
 const NHL = () => {
@@ -10,7 +10,10 @@ const NHL = () => {
 
   return (
     <div className="wrapper">
-      <Teams selectedTeam={selectedTeam} setSelectedTeam={setSelectedTeam} />
+      <TeamsList
+        selectedTeam={selectedTeam}
+        setSelectedTeam={setSelectedTeam}
+      />
       {selectedTeam && <PlayersList team={selectedTeam} />}
     </div>
   );
