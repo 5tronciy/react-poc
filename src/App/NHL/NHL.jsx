@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 
-import "./NHL.less";
+import "./Nhl.less";
 
 import { TeamsList } from "./TeamsList/TeamsList";
 import { PlayersList } from "./PlayersList/PlayersList";
 
-const NHL = () => {
+const Nhl = () => {
   const [selectedTeam, setSelectedTeam] = useState("");
 
   return (
@@ -19,4 +19,4 @@ const NHL = () => {
   );
 };
 
-export default NHL;
+export default Nhl;
