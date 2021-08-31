@@ -2,42 +2,42 @@ import React, { useState } from "react";
 import { Menu } from "semantic-ui-react";
 import Home from "./Home";
 import Shooting from "./Shooting";
-import Nhl from "./NHL/Nhl";
+import Nhl from "./NHL/NHL";
 import "./App.less";
 
-const MenuExampleBasic = () => {
-  const [state, setState] = useState({ activeItem: "nhl" });
-  const handleItemClick = (e, { name }) => setState({ activeItem: name });
+const App = () => {
+  const [state, setState] = useState("nhl");
+  const handleItemClick = (e, { name }) => setState(name);
   return (
     <div>
       <Menu>
         <Menu.Item
           name="home"
-          active={state.activeItem === "home"}
+          active={state === "home"}
           onClick={handleItemClick}
         >
           Home
         </Menu.Item>
         <Menu.Item
           name="shooting"
-          active={state.activeItem === "shooting"}
+          active={state === "shooting"}
           onClick={handleItemClick}
         >
           Shooting
         </Menu.Item>
         <Menu.Item
           name="nhl"
-          active={state.activeItem === "nhl"}
+          active={state === "nhl"}
           onClick={handleItemClick}
         >
           NHL
         </Menu.Item>
       </Menu>
-      {state.activeItem === "home" && <Home />}
-      {state.activeItem === "shooting" && <Shooting />}
-      {state.activeItem === "nhl" && <Nhl />}
+      {state === "home" && <Home />}
+      {state === "shooting" && <Shooting />}
+      {state === "nhl" && <Nhl />}
     </div>
   );
 };
 
-export default MenuExampleBasic;
+export default App;
