@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import App from "./src/App/App.jsx";
+import App from "./App/App.jsx";
 
 const styleLink = document.createElement("link");
 styleLink.rel = "stylesheet";

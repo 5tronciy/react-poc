@@ -4,7 +4,7 @@ const Dotenv = require("dotenv-webpack");
 
 module.exports = {
   mode: "development",
-  entry: "./index.js",
+  entry: "./src/index.js",
   devtool: "inline-source-map",
   devServer: {
     port: 10000,
@@ -48,7 +48,7 @@ module.exports = {
     ],
   },
   resolve: {
-    extensions: ["*", ".js", ".jsx", ".tsx", ".ts"],
+    extensions: ["*", ".tsx", ".ts", ".js", ".jsx"],
   },
   output: {
     path: path.resolve(__dirname, "build"),
