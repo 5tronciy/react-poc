@@ -13,7 +13,7 @@ export const PlayersList = ({ team }) => {
         const filterPlayer = {
             exp: "team.commonName = $team and lastName like $name",
             params: {
-                team: team,
+                team: team.commonName,
                 name: "%" + search + "%",
             },
         };

@@ -21,7 +21,7 @@ export const TeamsList = ({ selected, setSelected }) => {
         });
         const data = await response.json();
         setTeams(data.data);
-        setSelected("");
+        setSelected(null);
     }, [searchTeam]);
 
     return (
@@ -37,10 +37,10 @@ export const TeamsList = ({ selected, setSelected }) => {
                 <List selection verticalAlign="middle">
                     {(teams || []).map((team) => (
                         <List.Item
-                            active={team.commonName === selected}
+                            active={team.id === selected.id}
                             key={team.id}
                             onClick={() => {
-                                setSelected(team.commonName);
+                                setSelected(team);
                             }}
                         >
                             <Image
