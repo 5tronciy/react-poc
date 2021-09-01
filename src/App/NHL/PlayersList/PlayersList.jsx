@@ -42,7 +42,7 @@ export const PlayersList = ({ team }) => {
         const response = await myFetch("player", {
             filter: filterPlayer,
             include: ["team"],
-            order: "lastName",
+            order: `[{"property":"position"},{"property":"lastName"},{"property":"firstName"}]`,
         });
         const data = await response.json();
         setPlayers(data.data);
