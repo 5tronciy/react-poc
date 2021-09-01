@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { List, Image } from "semantic-ui-react";
+import { List, Image, Loader } from "semantic-ui-react";
 import s from "./TeamsList.less";
 import { SearchBar } from "../SearchBar/SearchBar";
 import { myFetch } from "../../../utils/myFetch";
 
-export const TeamsList = ({ selectedTeam, setSelectedTeam }) => {
-    const [teams, setTeams] = useState([]);
+export const TeamsList = ({ selected, setSelected }) => {
+    const [teams, setTeams] = useState(undefined);
     const [searchTeam, setSearchTeam] = useState("");
 
     useEffect(async () => {
@@ -21,32 +21,37 @@ export const TeamsList = ({ selectedTeam, setSelectedTeam }) => {
         });
         const data = await response.json();
         setTeams(data.data);
-        setSelectedTeam("");
+        setSelected("");
     }, [searchTeam]);
 
     return (
         <div className={s.teams}>
-            <SearchBar
-                onChange={setSearchTeam}
-                value={{ search: searchTeam, name: "team" }}
-            />
-            <List selection verticalAlign="middle">
-                {teams.map((team) => (
-                    <List.Item
-                        active={team.commonName === selectedTeam}
-                        key={team.id}
-                        onClick={() => {
-                            setSelectedTeam(team.commonName);
-                        }}
-                    >
-                        <Image
-                            avatar
-                            src={`${process.env.SERVER_REST}/team/${team.id}.svg`}
-                        />
-                        <List.Content>{team.commonName}</List.Content>
-                    </List.Item>
-                ))}
-            </List>
+            <div>
+                <SearchBar
+                    onChange={setSearchTeam}
+                    value={{ search: searchTeam, name: "team" }}
+                />
+            </div>
+            <div>
+                <Loader active={teams === undefined} />
+                <List selection verticalAlign="middle">
+                    {(teams || []).map((team) => (
+                        <List.Item
+                            active={team.commonName === selected}
+                            key={team.id}
+                            onClick={() => {
+                                setSelected(team.commonName);
+                            }}
+                        >
+                            <Image
+                                avatar
+                                src={`${process.env.SERVER_REST}/team/${team.id}.svg`}
+                            />
+                            <List.Content>{team.commonName}</List.Content>
+                        </List.Item>
+                    ))}
+                </List>
+            </div>
         </div>
     );
 };

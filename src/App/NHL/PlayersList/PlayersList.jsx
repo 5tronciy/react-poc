@@ -1,19 +1,20 @@
 import React, { useState, useEffect } from "react";
+import { Loader } from "semantic-ui-react";
 import s from "./PlayersList.less";
 import { SearchBar } from "../SearchBar/SearchBar";
 import { PlayerCard } from "../PlayerCard/PlayerCard";
 import { myFetch } from "../../../utils/myFetch";
 
 export const PlayersList = ({ team }) => {
-    const [players, setPlayers] = useState([]);
-    const [searchPlayer, setSearchPlayer] = useState("");
+    const [players, setPlayers] = useState(undefined);
+    const [search, setSearch] = useState("");
 
     useEffect(async () => {
         const filterPlayer = {
             exp: "team.commonName = $team and lastName like $name",
             params: {
                 team: team,
-                name: "%" + searchPlayer + "%",
+                name: "%" + search + "%",
             },
         };
         const response = await myFetch("player", {
@@ -23,22 +24,23 @@ export const PlayersList = ({ team }) => {
         });
         const data = await response.json();
         setPlayers(data.data);
-    }, [team, searchPlayer]);
+    }, [team, search]);
 
     useEffect(() => {
-        setSearchPlayer("");
+        setSearch("");
     }, [team]);
 
     return (
         <div>
             <div>
                 <SearchBar
-                    onChange={setSearchPlayer}
-                    value={{ search: searchPlayer, name: "player" }}
+                    onChange={setSearch}
+                    value={{ search: search, name: "player" }}
                 />
             </div>
             <div className={s.players}>
-                {players.map((player) => (
+                <Loader active={players === undefined} />
+                {(players || []).map((player) => (
                     <PlayerCard key={player.id} player={player} />
                 ))}
             </div>
