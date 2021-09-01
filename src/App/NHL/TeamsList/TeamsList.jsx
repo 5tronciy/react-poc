@@ -37,7 +37,7 @@ export const TeamsList = ({ selected, setSelected }) => {
                 <List selection verticalAlign="middle">
                     {(teams || []).map((team) => (
                         <List.Item
-                            active={team.id === selected.id}
+                            active={selected && team.id === selected.id}
                             key={team.id}
                             onClick={() => {
                                 setSelected(team);
