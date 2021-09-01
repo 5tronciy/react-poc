@@ -20,7 +20,7 @@ export const PlayersList = ({ team }) => {
     const [checked, setChecked] = useState([]);
 
     const debouncedFetch = useRef(
-        debounce(async (query) => {
+        debounce(async (query, team) => {
             const positionChecked =
                 checked.length > 0
                     ? "and (" +
@@ -51,7 +51,7 @@ export const PlayersList = ({ team }) => {
     ).current;
 
     useEffect(() => {
-        debouncedFetch(query);
+        debouncedFetch(query, team);
     }, [debouncedFetch, team, query, checked]);
 
     useEffect(() => {
