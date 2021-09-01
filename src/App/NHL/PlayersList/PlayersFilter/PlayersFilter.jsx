@@ -25,9 +25,8 @@ export const PlayersFilter = ({ onChange, value, checked, setChecked }) => {
         <div className={s.filter}>
             <div className={s.checkBoxes}>
                 {positions.map((position) => (
-                    <div className={s.checkBox}>
+                    <div className={s.checkBox} key={position.id}>
                         <Checkbox
-                            key={position.id}
                             label={position.name}
                             onChange={() => handleToggle(position.id)}
                             checked={checked && checked.includes(position.id)}
