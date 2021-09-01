@@ -39,12 +39,11 @@ export const PlayersList = ({ team }) => {
                 name: "%" + search + "%",
             },
         };
-        const response = await myFetch("player", {
+        const data = await myFetch("player", {
             filter: filterPlayer,
             include: ["team"],
             order: `[{"property":"position"},{"property":"lastName"},{"property":"firstName"}]`,
         });
-        const data = await response.json();
         setPlayers(data.data);
     }, [team, search, checked]);
 
