@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Loader } from "semantic-ui-react";
 import s from "./PlayersList.less";
-import { SearchBar } from "../SearchBar/SearchBar";
+import { PlayersFilter } from "./PlayersFilter/PlayersFilter";
 import { PlayerCard } from "../PlayerCard/PlayerCard";
 import { myFetch } from "../../../utils/myFetch";
 
@@ -33,7 +33,7 @@ export const PlayersList = ({ team }) => {
     return (
         <div>
             <div>
-                <SearchBar
+                <PlayersFilter
                     onChange={setSearch}
                     value={{ search: search, name: "player" }}
                 />

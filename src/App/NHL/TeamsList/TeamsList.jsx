@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { List, Image, Loader } from "semantic-ui-react";
 import s from "./TeamsList.less";
-import { SearchBar } from "../SearchBar/SearchBar";
+import { TeamsFilter } from "./TeamsFilter/TeamsFilter";
 import { myFetch } from "../../../utils/myFetch";
 
 export const TeamsList = ({ selected, setSelected }) => {
@@ -27,7 +27,7 @@ export const TeamsList = ({ selected, setSelected }) => {
     return (
         <div className={s.teams}>
             <div>
-                <SearchBar
+                <TeamsFilter
                     onChange={setSearchTeam}
                     value={{ search: searchTeam, name: "team" }}
                 />

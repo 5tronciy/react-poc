@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Input, Button, Icon } from "semantic-ui-react";
-import s from "./SearchBar.less";
+import s from "./PlayersFilter.less";
 
-export const SearchBar = ({ onChange, value }) => {
+export const PlayersFilter = ({ onChange, value }) => {
     const [tempSearch, setTempSearch] = useState("");
     useEffect(() => {
         setTempSearch(value.search);
