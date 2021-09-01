@@ -16,7 +16,9 @@ const Nhl = () => {
                     setSelected={setSelectedTeam}
                 />
             </div>
-            <div>{selectedTeam && <PlayersList team={selectedTeam} />}</div>
+            <div className={s.players}>
+                {selectedTeam && <PlayersList team={selectedTeam} />}
+            </div>
         </div>
     );
 };
