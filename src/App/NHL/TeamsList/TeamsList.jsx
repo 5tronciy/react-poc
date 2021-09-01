@@ -1,36 +1,39 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { List, Image, Loader } from "semantic-ui-react";
 import s from "./TeamsList.less";
 import { TeamsFilter } from "./TeamsFilter/TeamsFilter";
 import { myFetch } from "../../../utils/myFetch";
+import { debounce } from "lodash";
 
 export const TeamsList = ({ selected, setSelected }) => {
     const [teams, setTeams] = useState(undefined);
-    const [searchTeam, setSearchTeam] = useState("");
+    const [query, setQuery] = useState("");
 
-    useEffect(async () => {
-        const filterTeam = {
-            exp: "commonName like $name",
-            params: {
-                name: "%" + searchTeam + "%",
-            },
-        };
-        const response = await myFetch("team", {
-            filter: filterTeam,
-            order: "commonName",
-        });
-        const data = await response.json();
-        setTeams(data.data);
+    const debouncedFetch = useRef(
+        debounce(async (query) => {
+            const filterTeam = {
+                exp: "commonName like $name",
+                params: {
+                    name: "%" + query + "%",
+                },
+            };
+            const data = await myFetch("team", {
+                filter: filterTeam,
+                order: "commonName",
+            });
+            setTeams(data.data);
+        }, 200)
+    ).current;
+
+    useEffect(() => {
+        debouncedFetch(query);
         setSelected(null);
-    }, [searchTeam]);
+    }, [debouncedFetch, query]);
 
     return (
         <div className={s.teams}>
             <div>
-                <TeamsFilter
-                    onChange={setSearchTeam}
-                    value={{ search: searchTeam, name: "team" }}
-                />
+                <TeamsFilter onChange={setQuery} value={query} />
             </div>
             <div>
                 <Loader active={teams === undefined} />
