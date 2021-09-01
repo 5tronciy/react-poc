@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { Input, Button, Icon, Checkbox } from "semantic-ui-react";
+import { Input, Checkbox } from "semantic-ui-react";
 import s from "./PlayersFilter.less";
 import { positions } from "../PlayersList";
 
 export const PlayersFilter = ({ onChange, value, checked, setChecked }) => {
-    const [tempSearch, setTempSearch] = useState("");
-
     const handleToggle = (value) => {
         const currentIndex = checked.indexOf(value);
         const newChecked = [...checked];
@@ -16,10 +14,6 @@ export const PlayersFilter = ({ onChange, value, checked, setChecked }) => {
         }
         setChecked(newChecked);
     };
-
-    useEffect(() => {
-        setTempSearch(value.search);
-    }, [value]);
 
     return (
         <div className={s.filter}>
@@ -37,21 +31,11 @@ export const PlayersFilter = ({ onChange, value, checked, setChecked }) => {
             <div>
                 <Input
                     size="large"
-                    action={
-                        <Button
-                            icon
-                            onClick={() => {
-                                onChange(tempSearch);
-                            }}
-                        >
-                            <Icon name="search" />
-                        </Button>
-                    }
-                    placeholder={`Find ${value.name}`}
+                    placeholder={"Find player"}
                     type="text"
-                    value={tempSearch}
+                    value={value}
                     onChange={(e) => {
-                        setTempSearch(e.currentTarget.value);
+                        onChange(e.currentTarget.value);
                     }}
                 />
             </div>

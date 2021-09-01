@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { debounce } from "lodash";
 import { Loader } from "semantic-ui-react";
 import s from "./PlayersList.less";
 import { PlayersFilter } from "./PlayersFilter/PlayersFilter";
@@ -15,48 +16,54 @@ export const positions = [
 
 export const PlayersList = ({ team }) => {
     const [players, setPlayers] = useState(undefined);
-    const [search, setSearch] = useState("");
+    const [query, setQuery] = useState("");
     const [checked, setChecked] = useState([]);
 
-    useEffect(async () => {
-        const positionChecked =
-            checked.length > 0
-                ? "and (" +
-                  checked
-                      .map(
-                          (id) =>
-                              "position = '" +
-                              positions.find((pos) => pos.id === id).name +
-                              "'"
-                      )
-                      .join(" or ") +
-                  ")"
-                : "";
-        const filterPlayer = {
-            exp: `team.commonName = $team and lastName like $name ${positionChecked}`,
-            params: {
-                team: team.commonName,
-                name: "%" + search + "%",
-            },
-        };
-        const data = await myFetch("player", {
-            filter: filterPlayer,
-            include: ["team"],
-            order: `[{"property":"position"},{"property":"lastName"},{"property":"firstName"}]`,
-        });
-        setPlayers(data.data);
-    }, [team, search, checked]);
+    const debouncedFetch = useRef(
+        debounce(async (query) => {
+            const positionChecked =
+                checked.length > 0
+                    ? "and (" +
+                      checked
+                          .map(
+                              (id) =>
+                                  "position = '" +
+                                  positions.find((pos) => pos.id === id).name +
+                                  "'"
+                          )
+                          .join(" or ") +
+                      ")"
+                    : "";
+            const filterPlayer = {
+                exp: `team.commonName = $team and lastName like $name ${positionChecked}`,
+                params: {
+                    team: team.commonName,
+                    name: "%" + query + "%",
+                },
+            };
+            const data = await myFetch("player", {
+                filter: filterPlayer,
+                include: ["team"],
+                order: `[{"property":"position"},{"property":"lastName"},{"property":"firstName"}]`,
+            });
+            setPlayers(data.data);
+        }, 200)
+    ).current;
 
     useEffect(() => {
-        setSearch("");
+        debouncedFetch(query);
+    }, [debouncedFetch, team, query, checked]);
+
+    useEffect(() => {
+        setQuery("");
     }, [team]);
 
     return (
         <div>
             <div>
                 <PlayersFilter
-                    onChange={setSearch}
-                    value={{ search: search, name: "player" }}
+                    onChange={setQuery}
+                    value={query}
                     checked={checked}
                     setChecked={setChecked}
                 />
