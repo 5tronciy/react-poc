@@ -5,13 +5,35 @@ import { PlayersFilter } from "./PlayersFilter/PlayersFilter";
 import { PlayerCard } from "../PlayerCard/PlayerCard";
 import { myFetch } from "../../../utils/myFetch";
 
+export const positions = [
+    { id: 1, name: "L" },
+    { id: 2, name: "C" },
+    { id: 3, name: "G" },
+    { id: 4, name: "D" },
+    { id: 5, name: "R" },
+];
+
 export const PlayersList = ({ team }) => {
     const [players, setPlayers] = useState(undefined);
     const [search, setSearch] = useState("");
+    const [checked, setChecked] = useState([]);
 
     useEffect(async () => {
+        const positionChecked =
+            checked.length > 0
+                ? "and (" +
+                  checked
+                      .map(
+                          (id) =>
+                              "position = '" +
+                              positions.find((pos) => pos.id === id).name +
+                              "'"
+                      )
+                      .join(" or ") +
+                  ")"
+                : "";
         const filterPlayer = {
-            exp: "team.commonName = $team and lastName like $name",
+            exp: `team.commonName = $team and lastName like $name ${positionChecked}`,
             params: {
                 team: team.commonName,
                 name: "%" + search + "%",
@@ -24,7 +46,7 @@ export const PlayersList = ({ team }) => {
         });
         const data = await response.json();
         setPlayers(data.data);
-    }, [team, search]);
+    }, [team, search, checked]);
 
     useEffect(() => {
         setSearch("");
@@ -36,6 +58,8 @@ export const PlayersList = ({ team }) => {
                 <PlayersFilter
                     onChange={setSearch}
                     value={{ search: search, name: "player" }}
+                    checked={checked}
+                    setChecked={setChecked}
                 />
             </div>
             <div className={s.players}>
