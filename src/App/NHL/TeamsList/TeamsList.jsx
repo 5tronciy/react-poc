@@ -7,6 +7,7 @@ import { myFetch } from "../../../utils/myFetch";
 export const TeamsList = ({ selected, setSelected }) => {
     const [teams, setTeams] = useState(undefined);
     const [query, setQuery] = useState("");
+    const [quantity, setQuantity] = useState(undefined);
 
     useEffect(() => {
         const controller = new AbortController();
@@ -30,6 +31,7 @@ export const TeamsList = ({ selected, setSelected }) => {
             );
 
             setTeams(data.data);
+            setQuantity(data.total);
         }, 200);
 
         setSelected(null);
@@ -39,7 +41,11 @@ export const TeamsList = ({ selected, setSelected }) => {
     return (
         <div className={s.teams}>
             <div>
-                <TeamsFilter onChange={setQuery} value={query} />
+                <TeamsFilter
+                    onChange={setQuery}
+                    value={query}
+                    quantity={quantity}
+                />
             </div>
             <div>
                 <Loader active={teams === undefined} inline="centered" />
