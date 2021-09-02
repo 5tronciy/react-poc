@@ -1,41 +1,40 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { List, Image, Loader } from "semantic-ui-react";
 import s from "./TeamsList.less";
 import { TeamsFilter } from "./TeamsFilter/TeamsFilter";
 import { myFetch } from "../../../utils/myFetch";
-import { debounce } from "lodash";
 
 export const TeamsList = ({ selected, setSelected }) => {
     const [teams, setTeams] = useState(undefined);
     const [query, setQuery] = useState("");
 
-    const debouncedFetch = useRef(
-        debounce(async (query, token) => {
+    useEffect(() => {
+        const controller = new AbortController();
+        const cancelToken = controller.signal;
+
+        const timeOutId = setTimeout(async () => {
             const filterTeam = {
                 exp: "commonName like $name",
                 params: {
                     name: "%" + query + "%",
                 },
             };
+
             const data = await myFetch(
                 "team",
                 {
                     filter: filterTeam,
                     order: "commonName",
                 },
-                token
+                cancelToken
             );
-            setTeams(data.data);
-        }, 200)
-    ).current;
 
-    useEffect(() => {
-        const controller = new AbortController();
-        const cancelToken = controller.signal;
-        debouncedFetch(query, cancelToken);
+            setTeams(data.data);
+        }, 200);
+
         setSelected(null);
-        return () => controller.abort();
-    }, [debouncedFetch, query]);
+        return () => controller.abort() || clearTimeout(timeOutId);
+    }, [query]);
 
     return (
         <div className={s.teams}>

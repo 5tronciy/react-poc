@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
-import { debounce } from "lodash";
+import React, { useState, useEffect } from "react";
 import { Loader } from "semantic-ui-react";
 import s from "./PlayersList.less";
 import { PlayersFilter } from "./PlayersFilter/PlayersFilter";
@@ -19,8 +18,11 @@ export const PlayersList = ({ team }) => {
     const [query, setQuery] = useState("");
     const [checked, setChecked] = useState([]);
 
-    const debouncedFetch = useRef(
-        debounce(async (query, team, token) => {
+    useEffect(() => {
+        const controller = new AbortController();
+        const cancelToken = controller.signal;
+
+        const timeOutId = setTimeout(async () => {
             const positionChecked =
                 checked.length > 0
                     ? "and (" +
@@ -34,6 +36,7 @@ export const PlayersList = ({ team }) => {
                           .join(" or ") +
                       ")"
                     : "";
+
             const filterPlayer = {
                 exp: `team.commonName = $team and lastName like $name ${positionChecked}`,
                 params: {
@@ -41,6 +44,7 @@ export const PlayersList = ({ team }) => {
                     name: "%" + query + "%",
                 },
             };
+
             const data = await myFetch(
                 "player",
                 {
@@ -48,18 +52,14 @@ export const PlayersList = ({ team }) => {
                     include: ["team"],
                     order: `[{"property":"position"},{"property":"lastName"},{"property":"firstName"}]`,
                 },
-                token
+                cancelToken
             );
-            setPlayers(data.data);
-        }, 200)
-    ).current;
 
-    useEffect(() => {
-        const controller = new AbortController();
-        const cancelToken = controller.signal;
-        debouncedFetch(query, team, cancelToken);
-        return () => controller.abort();
-    }, [debouncedFetch, team, query, checked]);
+            setPlayers(data.data);
+        }, 200);
+
+        return () => controller.abort() || clearTimeout(timeOutId);
+    }, [team, query, checked]);
 
     useEffect(() => {
         setQuery("");
