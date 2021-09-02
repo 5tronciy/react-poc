@@ -10,24 +10,31 @@ export const TeamsList = ({ selected, setSelected }) => {
     const [query, setQuery] = useState("");
 
     const debouncedFetch = useRef(
-        debounce(async (query) => {
+        debounce(async (query, token) => {
             const filterTeam = {
                 exp: "commonName like $name",
                 params: {
                     name: "%" + query + "%",
                 },
             };
-            const data = await myFetch("team", {
-                filter: filterTeam,
-                order: "commonName",
-            });
+            const data = await myFetch(
+                "team",
+                {
+                    filter: filterTeam,
+                    order: "commonName",
+                },
+                token
+            );
             setTeams(data.data);
         }, 200)
     ).current;
 
     useEffect(() => {
-        debouncedFetch(query);
+        const controller = new AbortController();
+        const cancelToken = controller.signal;
+        debouncedFetch(query, cancelToken);
         setSelected(null);
+        return () => controller.abort();
     }, [debouncedFetch, query]);
 
     return (
@@ -36,7 +43,7 @@ export const TeamsList = ({ selected, setSelected }) => {
                 <TeamsFilter onChange={setQuery} value={query} />
             </div>
             <div>
-                <Loader active={teams === undefined} />
+                <Loader active={teams === undefined} inline="centered" />
                 <List selection verticalAlign="middle">
                     {(teams || []).map((team) => (
                         <List.Item

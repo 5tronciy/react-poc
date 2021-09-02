@@ -20,7 +20,7 @@ export const PlayersList = ({ team }) => {
     const [checked, setChecked] = useState([]);
 
     const debouncedFetch = useRef(
-        debounce(async (query, team) => {
+        debounce(async (query, team, token) => {
             const positionChecked =
                 checked.length > 0
                     ? "and (" +
@@ -41,17 +41,24 @@ export const PlayersList = ({ team }) => {
                     name: "%" + query + "%",
                 },
             };
-            const data = await myFetch("player", {
-                filter: filterPlayer,
-                include: ["team"],
-                order: `[{"property":"position"},{"property":"lastName"},{"property":"firstName"}]`,
-            });
+            const data = await myFetch(
+                "player",
+                {
+                    filter: filterPlayer,
+                    include: ["team"],
+                    order: `[{"property":"position"},{"property":"lastName"},{"property":"firstName"}]`,
+                },
+                token
+            );
             setPlayers(data.data);
         }, 200)
     ).current;
 
     useEffect(() => {
-        debouncedFetch(query, team);
+        const controller = new AbortController();
+        const cancelToken = controller.signal;
+        debouncedFetch(query, team, cancelToken);
+        return () => controller.abort();
     }, [debouncedFetch, team, query, checked]);
 
     useEffect(() => {
