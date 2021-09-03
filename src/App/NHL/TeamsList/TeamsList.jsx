@@ -57,10 +57,7 @@ export const TeamsList = ({ selected, setSelected }) => {
                                 setSelected(team);
                             }}
                         >
-                            <Image
-                                avatar
-                                src={`${process.env.SERVER_REST}/team/${team.id}.svg`}
-                            />
+                            <Image avatar src={`rest/team/${team.id}.svg`} />
                             <List.Content>{team.commonName}</List.Content>
                         </List.Item>
                     ))}

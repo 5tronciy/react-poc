@@ -4,7 +4,7 @@ export const myFetch = async (
     cancelToken
 ) => {
     const response = await fetch(
-        `${process.env.SERVER_REST}/${endpoint}?cayenneExp=${encodeURIComponent(
+        `rest/${endpoint}?cayenneExp=${encodeURIComponent(
             JSON.stringify(filter)
         )}${(include || [])
             .map((i) => "&include=" + i)
