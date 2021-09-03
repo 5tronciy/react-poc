@@ -23,33 +23,42 @@ export const PlayersList = ({ team }) => {
         const cancelToken = controller.signal;
 
         const timeOutId = setTimeout(async () => {
-            const positionChecked =
-                checked.length > 0
-                    ? "and (" +
-                      checked
-                          .map(
-                              (id) =>
-                                  "position = '" +
-                                  positions.find((pos) => pos.id === id).name +
-                                  "'"
-                          )
-                          .join(" or ") +
-                      ")"
-                    : "";
+            const filterBuilder = {
+                parts: ["team.commonName = $team", "lastName like $name"],
+                args: {},
+            };
+
+            if (checked.length > 0) {
+                filterBuilder.parts.push(
+                    "(" +
+                        checked
+                            .map(
+                                (id) =>
+                                    "position = '" +
+                                    positions.find((pos) => pos.id === id)
+                                        .name +
+                                    "'"
+                            )
+                            .join(" or ") +
+                        ")"
+                );
+            }
 
             const filterPlayer = {
-                exp: `team.commonName = $team and lastName like $name ${positionChecked}`,
+                exp: filterBuilder.parts.join(" and "),
                 params: {
                     team: team.commonName,
                     name: "%" + query + "%",
+                    position: checked.map(
+                        (id) => positions.find((pos) => pos.id === id).name
+                    ),
                 },
             };
-
+            console.log(filterPlayer);
             const data = await myFetch(
                 "player",
                 {
                     filter: filterPlayer,
-                    include: ["team"],
                     order: `[{"property":"position"},{"property":"lastName"},{"property":"firstName"}]`,
                 },
                 cancelToken
