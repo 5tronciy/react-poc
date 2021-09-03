@@ -1,25 +1,20 @@
 import React from "react";
-import { Input, Label, Icon } from "semantic-ui-react";
+import { Input } from "semantic-ui-react";
 import s from "./TeamsFilter.less";
 
-export const TeamsFilter = ({ onChange, value, quantity }) => {
+export const TeamsFilter = ({ onChange, value }) => {
     return (
-        <div className={s.searchBar}>
+        <div className={s.container}>
             <Input
                 size="large"
-                iconPosition="left"
-                labelPosition="right"
+                icon="search"
                 placeholder="Find team"
                 type="text"
                 value={value}
                 onChange={(e) => {
                     onChange(e.currentTarget.value);
                 }}
-            >
-                <input />
-                <Icon name="search" />
-                {quantity && <Label>{quantity}</Label>}
-            </Input>
+            />
         </div>
     );
 };

@@ -10,7 +10,7 @@ const Nhl = () => {
 
     return (
         <div className={s.wrapper}>
-            <div>
+            <div className={s.teams}>
                 <TeamsList
                     selected={selectedTeam}
                     setSelected={setSelectedTeam}

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Input, Checkbox } from "semantic-ui-react";
 import s from "./PlayersFilter.less";
 import { positions } from "../PlayersList";
@@ -16,7 +16,7 @@ export const PlayersFilter = ({ onChange, value, checked, setChecked }) => {
     };
 
     return (
-        <div className={s.filter}>
+        <div className={s.container}>
             <div className={s.checkBoxes}>
                 {positions.map((position) => (
                     <div className={s.checkBox} key={position.id}>
@@ -28,10 +28,11 @@ export const PlayersFilter = ({ onChange, value, checked, setChecked }) => {
                     </div>
                 ))}
             </div>
-            <div>
+            <div className={s.input}>
                 <Input
                     size="large"
-                    placeholder={"Find player"}
+                    icon="search"
+                    placeholder="Find player"
                     type="text"
                     value={value}
                     onChange={(e) => {

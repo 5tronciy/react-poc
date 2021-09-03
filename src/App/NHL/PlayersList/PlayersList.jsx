@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Loader } from "semantic-ui-react";
+import { Loader, Card } from "semantic-ui-react";
 import s from "./PlayersList.less";
 import { PlayersFilter } from "./PlayersFilter/PlayersFilter";
 import { PlayerCard } from "../PlayerCard/PlayerCard";
@@ -66,8 +66,8 @@ export const PlayersList = ({ team }) => {
     }, [team]);
 
     return (
-        <div>
-            <div>
+        <div className={s.container}>
+            <div className={s.filter}>
                 <PlayersFilter
                     onChange={setQuery}
                     value={query}
@@ -77,9 +77,11 @@ export const PlayersList = ({ team }) => {
             </div>
             <div className={s.players}>
                 <Loader active={players === undefined} />
-                {(players || []).map((player) => (
-                    <PlayerCard key={player.id} player={player} />
-                ))}
+                <Card.Group>
+                    {(players || []).map((player) => (
+                        <PlayerCard key={player.id} player={player} />
+                    ))}
+                </Card.Group>
             </div>
         </div>
     );

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { List, Image, Loader } from "semantic-ui-react";
+import { List, Image, Loader, Label } from "semantic-ui-react";
 import s from "./TeamsList.less";
 import { TeamsFilter } from "./TeamsFilter/TeamsFilter";
 import { myFetch } from "../../../utils/myFetch";
@@ -39,15 +39,14 @@ export const TeamsList = ({ selected, setSelected }) => {
     }, [query]);
 
     return (
-        <div className={s.teams}>
-            <div>
-                <TeamsFilter
-                    onChange={setQuery}
-                    value={query}
-                    quantity={quantity}
-                />
+        <div className={s.container}>
+            <div className={s.filter}>
+                <TeamsFilter onChange={setQuery} value={query} />
             </div>
-            <div>
+            <div className={s.title}>
+                <Label>{quantity}</Label>
+            </div>
+            <div className={s.teams}>
                 <Loader active={teams === undefined} inline="centered" />
                 <List selection verticalAlign="middle">
                     {(teams || []).map((team) => (
