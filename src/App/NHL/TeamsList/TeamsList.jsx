@@ -54,7 +54,7 @@ export const TeamsList = ({ selected, setSelected }) => {
                             active={selected && team.id === selected.id}
                             key={team.id}
                             onClick={() => {
-                                setSelected(team);
+                                setSelected(team.id);
                             }}
                         >
                             <Image avatar src={`rest/team/${team.id}.svg`} />

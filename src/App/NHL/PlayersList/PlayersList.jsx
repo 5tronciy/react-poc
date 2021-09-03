@@ -24,7 +24,7 @@ export const PlayersList = ({ team }) => {
 
         const timeOutId = setTimeout(async () => {
             const filterBuilder = {
-                parts: ["team.commonName = $team", "lastName like $name"],
+                parts: ["team = $team", "lastName like $name"],
                 args: {},
             };
 
@@ -47,14 +47,14 @@ export const PlayersList = ({ team }) => {
             const filterPlayer = {
                 exp: filterBuilder.parts.join(" and "),
                 params: {
-                    team: team.commonName,
+                    team: team,
                     name: "%" + query + "%",
                     position: checked.map(
                         (id) => positions.find((pos) => pos.id === id).name
                     ),
                 },
             };
-            console.log(filterPlayer);
+
             const data = await myFetch(
                 "player",
                 {
