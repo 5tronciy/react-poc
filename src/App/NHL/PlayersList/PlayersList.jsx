@@ -6,9 +6,10 @@ import { PlayerCard } from "../PlayerCard/PlayerCard";
 import { myFetch } from "../../../utils/myFetch";
 import { positions, delay } from "../../../utils/constants";
 
-const mapPositions = new Map();
-positions.forEach((i) => mapPositions.set(i.id, i.name));
-const map = Object.fromEntries(mapPositions.entries());
+const map = positions.reduce(
+    (acc, item) => ({ ...acc, [item.id]: item.name }),
+    {}
+);
 
 export const PlayersList = ({ team }) => {
     const [players, setPlayers] = useState(undefined);
