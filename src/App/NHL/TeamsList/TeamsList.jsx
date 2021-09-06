@@ -3,6 +3,7 @@ import { List, Image, Loader, Label } from "semantic-ui-react";
 import s from "./TeamsList.less";
 import { TeamsFilter } from "./TeamsFilter/TeamsFilter";
 import { myFetch } from "../../../utils/myFetch";
+import { delay } from "../../../utils/constants";
 
 export const TeamsList = ({ selected, setSelected }) => {
     const [teams, setTeams] = useState(undefined);
@@ -11,7 +12,7 @@ export const TeamsList = ({ selected, setSelected }) => {
 
     useEffect(() => {
         const controller = new AbortController();
-        const cancelToken = controller.signal;
+        const signal = controller.signal;
 
         const timeOutId = setTimeout(async () => {
             const filterTeam = {
@@ -27,12 +28,12 @@ export const TeamsList = ({ selected, setSelected }) => {
                     filter: filterTeam,
                     order: "commonName",
                 },
-                cancelToken
+                signal
             );
 
             setTeams(data.data);
             setQuantity(data.total);
-        }, 200);
+        }, delay);
 
         setSelected(null);
         return () => controller.abort() || clearTimeout(timeOutId);

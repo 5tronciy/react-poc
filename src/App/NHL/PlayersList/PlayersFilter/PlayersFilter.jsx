@@ -1,18 +1,18 @@
 import React from "react";
 import { Input, Checkbox } from "semantic-ui-react";
 import s from "./PlayersFilter.less";
-import { positions } from "../PlayersList";
+import { positions } from "../../../../utils/constants";
 
-export const PlayersFilter = ({ onChange, value, checked, setChecked }) => {
-    const handleToggle = (value) => {
-        const currentIndex = checked.indexOf(value);
-        const newChecked = [...checked];
+export const PlayersFilter = ({ onChange, value }) => {
+    const handleToggle = (val) => {
+        const currentIndex = value.checked.indexOf(val);
+        const newChecked = [...value.checked];
         if (currentIndex === -1) {
-            newChecked.push(value);
+            newChecked.push(val);
         } else {
             newChecked.splice(currentIndex, 1);
         }
-        setChecked(newChecked);
+        value.setChecked(newChecked);
     };
 
     return (
@@ -23,7 +23,10 @@ export const PlayersFilter = ({ onChange, value, checked, setChecked }) => {
                         <Checkbox
                             label={position.name}
                             onChange={() => handleToggle(position.id)}
-                            checked={checked && checked.includes(position.id)}
+                            checked={
+                                value.checked &&
+                                value.checked.includes(position.id)
+                            }
                         />
                     </div>
                 ))}
@@ -34,7 +37,7 @@ export const PlayersFilter = ({ onChange, value, checked, setChecked }) => {
                     icon="search"
                     placeholder="Find player"
                     type="text"
-                    value={value}
+                    value={value.query}
                     onChange={(e) => {
                         onChange(e.currentTarget.value);
                     }}

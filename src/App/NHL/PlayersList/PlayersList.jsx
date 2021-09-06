@@ -4,74 +4,80 @@ import s from "./PlayersList.less";
 import { PlayersFilter } from "./PlayersFilter/PlayersFilter";
 import { PlayerCard } from "../PlayerCard/PlayerCard";
 import { myFetch } from "../../../utils/myFetch";
+import { positions, delay } from "../../../utils/constants";
 
-export const positions = [
-    { id: 1, name: "L" },
-    { id: 2, name: "C" },
-    { id: 3, name: "G" },
-    { id: 4, name: "D" },
-    { id: 5, name: "R" },
-];
+const mapPositions = new Map();
+positions.forEach((i) => mapPositions.set(i.id, i.name));
+const map = Object.fromEntries(mapPositions.entries());
 
 export const PlayersList = ({ team }) => {
     const [players, setPlayers] = useState(undefined);
     const [query, setQuery] = useState("");
     const [checked, setChecked] = useState([]);
 
+    const filter = () => {
+        const filterBuilder = {
+            parts: [],
+            args: {},
+        };
+
+        filterBuilder.parts.push("team = $team");
+        filterBuilder.args.team = team;
+
+        filterBuilder.parts.push("lastName like $name");
+        filterBuilder.args.name = `%${query}%`;
+
+        checked.length &&
+            filterBuilder.parts.push(
+                checked
+                    .map((id, index) => `position = $position_${index}`)
+                    .join(" or ")
+            );
+
+        checked.reduce((acc, id, index) => {
+            acc.args["position_" + index] = map[id];
+            return acc;
+        }, filterBuilder);
+
+        const filterPlayer = {
+            exp: filterBuilder.parts.map((p) => `(${p})`).join(" and "),
+            params: filterBuilder.args,
+        };
+        return filterPlayer;
+    };
+
     useEffect(() => {
         const controller = new AbortController();
-        const cancelToken = controller.signal;
+        const signal = controller.signal;
 
         const timeOutId = setTimeout(async () => {
-            const filterBuilder = {
-                parts: ["team = $team", "lastName like $name"],
-                args: {},
-            };
-
-            if (checked.length > 0) {
-                filterBuilder.parts.push(
-                    "(" +
-                        checked
-                            .map(
-                                (id) =>
-                                    "position = '" +
-                                    positions.find((pos) => pos.id === id)
-                                        .name +
-                                    "'"
-                            )
-                            .join(" or ") +
-                        ")"
-                );
-            }
-
-            const filterPlayer = {
-                exp: filterBuilder.parts.join(" and "),
-                params: {
-                    team: team,
-                    name: "%" + query + "%",
-                    position: checked.map(
-                        (id) => positions.find((pos) => pos.id === id).name
-                    ),
-                },
-            };
-
             const data = await myFetch(
                 "player",
                 {
-                    filter: filterPlayer,
+                    filter: filter(),
                     order: `[{"property":"position"},{"property":"lastName"},{"property":"firstName"}]`,
                 },
-                cancelToken
+                signal
             );
 
             setPlayers(data.data);
-        }, 200);
+        }, delay);
 
         return () => controller.abort() || clearTimeout(timeOutId);
-    }, [team, query, checked]);
+    }, [query]);
+
+    useEffect(async () => {
+        const data = await myFetch("player", {
+            filter: filter(),
+            order: `[{"property":"position"},{"property":"lastName"},{"property":"firstName"}]`,
+        });
+
+        setPlayers(data.data);
+    }, [team, checked]);
 
     useEffect(() => {
         setQuery("");
+        setChecked([]);
     }, [team]);
 
     return (
@@ -79,9 +85,7 @@ export const PlayersList = ({ team }) => {
             <div className={s.filter}>
                 <PlayersFilter
                     onChange={setQuery}
-                    value={query}
-                    checked={checked}
-                    setChecked={setChecked}
+                    value={{ query, checked, setChecked }}
                 />
             </div>
             <div className={s.players}>
