@@ -3,6 +3,7 @@ import { Loader, Card } from "semantic-ui-react";
 import s from "./PlayersList.less";
 import { PlayersFilter } from "./PlayersFilter/PlayersFilter";
 import { PlayerCard } from "../PlayerCard/PlayerCard";
+import { PlayerCrudModal } from "./PlayerCrudModal/PlayerCrudModal";
 import { myFetch } from "../../../utils/myFetch";
 import { positions, delay } from "../../../utils/constants";
 
@@ -15,6 +16,8 @@ export const PlayersList = ({ team }) => {
     const [players, setPlayers] = useState(undefined);
     const [query, setQuery] = useState("");
     const [checked, setChecked] = useState([]);
+    const [open, setOpen] = useState(false);
+    const [player, setPlayer] = useState({});
 
     const filter = () => {
         const filterBuilder = {
@@ -56,6 +59,7 @@ export const PlayersList = ({ team }) => {
                 "player",
                 {
                     filter: filter(),
+                    include: ["team"],
                     order: `[{"property":"position"},{"property":"lastName"},{"property":"firstName"}]`,
                 },
                 signal
@@ -93,10 +97,20 @@ export const PlayersList = ({ team }) => {
                 <Loader active={players === undefined} />
                 <Card.Group>
                     {(players || []).map((player) => (
-                        <PlayerCard key={player.id} player={player} />
+                        <div
+                            key={player.id}
+                            className={s.player}
+                            onClick={() => {
+                                setPlayer(player);
+                                setOpen(true);
+                            }}
+                        >
+                            <PlayerCard player={player} />
+                        </div>
                     ))}
                 </Card.Group>
             </div>
+            <PlayerCrudModal open={open} onClose={setOpen} value={player} />
         </div>
     );
 };
