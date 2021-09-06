@@ -42,17 +42,19 @@ export const TeamsList = ({ selected, setSelected }) => {
     return (
         <div className={s.container}>
             <div className={s.filter}>
-                <TeamsFilter onChange={setQuery} value={query} />
-            </div>
-            <div className={s.title}>
-                <Label>{quantity}</Label>
+                <div className="input">
+                    <TeamsFilter onChange={setQuery} value={query} />
+                </div>
+                <div className={s.title}>
+                    <Label>{quantity}</Label>
+                </div>
             </div>
             <div className={s.teams}>
                 <Loader active={teams === undefined} inline="centered" />
                 <List selection verticalAlign="middle">
                     {(teams || []).map((team) => (
                         <List.Item
-                            active={selected && team.id === selected.id}
+                            active={selected && team.id === selected}
                             key={team.id}
                             onClick={() => {
                                 setSelected(team.id);
