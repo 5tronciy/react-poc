@@ -8,7 +8,7 @@ module.exports = {
     entry: "./src/index.js",
     devtool: "inline-source-map",
     devServer: {
-        port: 10000,
+        port: process.env.PORT || 3000,
         proxy: {
             "/rest": process.env.SERVER_REST,
         },
