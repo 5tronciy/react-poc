@@ -1,16 +1,26 @@
 import React, { useEffect, useState } from "react";
 import { Button, Image, Modal, Table, Icon } from "semantic-ui-react";
+import { myFetch } from "../../../../utils/myFetch";
 
 export const PlayerCrudModal = ({ open, onClose, value }) => {
+    const [player, setPlayer] = useState({});
+
+    useEffect(async () => {
+        const data = await myFetch(`player/${value}`, {
+            include: ["team"],
+        });
+        setPlayer(data.data[0]);
+    }, [value]);
+
     return (
         <Modal onClose={() => onClose(false)} open={open}>
             <Modal.Header>
-                {`${value.firstName} ${value.lastName}`}
+                {`${player.firstName} ${player.lastName}`}
             </Modal.Header>
             <Modal.Content image>
                 <Image
                     size="medium"
-                    src={`https://cms.nhl.bamgrid.com/images/headshots/current/168x168/${value.id}.jpg`}
+                    src={`https://cms.nhl.bamgrid.com/images/headshots/current/168x168/${player.id}.jpg`}
                     wrapped
                 />
                 <Table definition celled>
@@ -24,33 +34,35 @@ export const PlayerCrudModal = ({ open, onClose, value }) => {
                     <Table.Body>
                         <Table.Row>
                             <Table.Cell width="3">First Name</Table.Cell>
-                            <Table.Cell>{value.firstName}</Table.Cell>
+                            <Table.Cell>{player.firstName}</Table.Cell>
                         </Table.Row>
-                        {value.middleName && (
+                        {player.middleName && (
                             <Table.Row>
                                 <Table.Cell width="3">Middle Name</Table.Cell>
-                                <Table.Cell>{value.middleName}</Table.Cell>
+                                <Table.Cell>{player.middleName}</Table.Cell>
                             </Table.Row>
                         )}
                         <Table.Row>
                             <Table.Cell width="3">Last Name</Table.Cell>
-                            <Table.Cell>{value.lastName}</Table.Cell>
+                            <Table.Cell>{player.lastName}</Table.Cell>
                         </Table.Row>
-                        {value.birthDate && (
+                        {player.birthDate && (
                             <Table.Row>
                                 <Table.Cell width="3">Birth Date</Table.Cell>
-                                <Table.Cell>{value.birthDate}</Table.Cell>
+                                <Table.Cell>{player.birthDate}</Table.Cell>
                             </Table.Row>
                         )}
-                        {value.team && (
+                        {player.team && (
                             <Table.Row>
                                 <Table.Cell width="3">Team</Table.Cell>
-                                <Table.Cell>{value.team.commonName}</Table.Cell>
+                                <Table.Cell>
+                                    {player.team.commonName}
+                                </Table.Cell>
                             </Table.Row>
                         )}
                         <Table.Row>
                             <Table.Cell width="3">Position</Table.Cell>
-                            <Table.Cell>{value.position}</Table.Cell>
+                            <Table.Cell>{player.position}</Table.Cell>
                         </Table.Row>
                     </Table.Body>
                 </Table>

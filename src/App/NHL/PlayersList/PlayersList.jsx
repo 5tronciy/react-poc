@@ -59,7 +59,6 @@ export const PlayersList = ({ team }) => {
                 "player",
                 {
                     filter: filter(),
-                    include: ["team"],
                     order: `[{"property":"position"},{"property":"lastName"},{"property":"firstName"}]`,
                 },
                 signal
@@ -110,7 +109,13 @@ export const PlayersList = ({ team }) => {
                     ))}
                 </Card.Group>
             </div>
-            <PlayerCrudModal open={open} onClose={setOpen} value={player} />
+            {player.id && (
+                <PlayerCrudModal
+                    open={open}
+                    onClose={setOpen}
+                    value={player.id}
+                />
+            )}
         </div>
     );
 };
