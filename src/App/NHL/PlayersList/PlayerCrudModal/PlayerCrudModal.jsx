@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { Button, Image, Modal, Table, Icon } from "semantic-ui-react";
+import { Button, Image, Modal, Form, Icon } from "semantic-ui-react";
 import { myFetch } from "../../../../utils/myFetch";
+import s from "./PlayerCrudModal.less";
 
 export const PlayerCrudModal = ({ open, onClose, value }) => {
     const [player, setPlayer] = useState({});
@@ -19,53 +20,69 @@ export const PlayerCrudModal = ({ open, onClose, value }) => {
             </Modal.Header>
             <Modal.Content image>
                 <Image
+                    className={s.image}
                     size="medium"
                     src={`https://cms.nhl.bamgrid.com/images/headshots/current/168x168/${player.id}.jpg`}
                     wrapped
                 />
-                <Table definition celled>
-                    <Table.Header>
-                        <Table.Row>
-                            <Table.HeaderCell colSpan="2">
-                                Detailed Info
-                            </Table.HeaderCell>
-                        </Table.Row>
-                    </Table.Header>
-                    <Table.Body>
-                        <Table.Row>
-                            <Table.Cell width="3">First Name</Table.Cell>
-                            <Table.Cell>{player.firstName}</Table.Cell>
-                        </Table.Row>
+                <Form className={s.form}>
+                    <Form.Group grouped>
+                        <Form.Input
+                            label="First name"
+                            placeholder="First name"
+                            value={player.firstName}
+                            readOnly
+                        />
                         {player.middleName && (
-                            <Table.Row>
-                                <Table.Cell width="3">Middle Name</Table.Cell>
-                                <Table.Cell>{player.middleName}</Table.Cell>
-                            </Table.Row>
+                            <Form.Input
+                                label="Middle name"
+                                placeholder="Middle name"
+                                value={player.middleName}
+                                readOnly
+                            />
                         )}
-                        <Table.Row>
-                            <Table.Cell width="3">Last Name</Table.Cell>
-                            <Table.Cell>{player.lastName}</Table.Cell>
-                        </Table.Row>
+                        <Form.Input
+                            label="Last name"
+                            placeholder="Last name"
+                            value={player.lastName}
+                            readOnly
+                        />
                         {player.birthDate && (
-                            <Table.Row>
-                                <Table.Cell width="3">Birth Date</Table.Cell>
-                                <Table.Cell>{player.birthDate}</Table.Cell>
-                            </Table.Row>
+                            <Form.Input
+                                label="Birth date"
+                                placeholder="Birth date"
+                                value={player.birthDate}
+                                readOnly
+                            />
                         )}
                         {player.team && (
-                            <Table.Row>
-                                <Table.Cell width="3">Team</Table.Cell>
-                                <Table.Cell>
-                                    {player.team.commonName}
-                                </Table.Cell>
-                            </Table.Row>
+                            <Form.Input
+                                label="Team"
+                                placeholder="Team"
+                                value={player.team.commonName}
+                                readOnly
+                            />
                         )}
-                        <Table.Row>
-                            <Table.Cell width="3">Position</Table.Cell>
-                            <Table.Cell>{player.position}</Table.Cell>
-                        </Table.Row>
-                    </Table.Body>
-                </Table>
+                        <Form.Input
+                            label="Position"
+                            placeholder="Position"
+                            value={player.position}
+                            readOnly
+                        />
+                    </Form.Group>
+                    <Form.Group grouped className={s.techData}>
+                        <Form.Input
+                            label="ID"
+                            inline
+                            value={player.id}
+                            readOnly
+                        />
+                        <Form.Checkbox
+                            label="Force refresh"
+                            checked={player.forceRefresh}
+                        />
+                    </Form.Group>
+                </Form>
             </Modal.Content>
             <Modal.Actions>
                 <Button
