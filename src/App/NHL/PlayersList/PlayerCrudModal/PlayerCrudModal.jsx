@@ -40,6 +40,14 @@ export const PlayerCrudModal = ({ open, onClose, value }) => {
         });
     };
 
+    const selectHandler = (e) => {
+        setDifference({ ...difference, position: e.target.innerText });
+        setPlayer({
+            ...player,
+            position: e.target.innerText,
+        });
+    };
+
     return (
         <Modal onClose={() => onClose(false)} open={open}>
             <Modal.Header>
@@ -109,7 +117,7 @@ export const PlayerCrudModal = ({ open, onClose, value }) => {
                             placeholder="Position"
                             value={player.position}
                             options={options}
-                            onChange={onChangeHandler}
+                            onChange={selectHandler}
                             readOnly={!edit}
                         />
                     </Form.Group>
