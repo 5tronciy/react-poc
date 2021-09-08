@@ -7,6 +7,7 @@ import { positions } from "../../../../utils/constants";
 export const PlayerCrudModal = ({ open, onClose, value }) => {
     const [player, setPlayer] = useState({});
     const [edit, setEdit] = useState(false);
+    const [difference, setDifference] = useState({});
 
     const options = positions.map((position) => {
         return { key: position.id, value: position.name, text: position.name };
@@ -20,11 +21,19 @@ export const PlayerCrudModal = ({ open, onClose, value }) => {
     }, [value]);
 
     const onSubmit = (e) => {
+        fetch(`rest/player/${value}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json;charset=utf-8",
+            },
+            body: JSON.stringify(difference),
+        });
         setEdit(false);
         e.preventDefault();
     };
 
     const onChangeHandler = (e) => {
+        setDifference({ ...difference, [e.target.name]: e.target.value });
         setPlayer({
             ...player,
             [e.target.name]: e.target.value,
