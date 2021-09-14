@@ -1,23 +1,45 @@
 import React, { useEffect, useState } from "react";
 import { Button, Image, Modal, Form, Icon, Input } from "semantic-ui-react";
+import { useFormik } from "formik";
+import * as Yup from "yup";
+
 import { myFetch } from "../../../../utils/myFetch";
+import { getDifference } from "../../../../utils/getDifference";
 import s from "./PlayerCrudModal.less";
 import { positions } from "../../../../utils/constants";
 
 export const PlayerCrudModal = ({ open, onClose, value }) => {
-    const [player, setPlayer] = useState({});
+    const [player, setPlayer] = useState({ team: { commonName: "" } });
     const [edit, setEdit] = useState(false);
-    const [difference, setDifference] = useState({});
-    const [formValid, setFormValid] = useState(false);
-    const [errors, setErrors] = useState({
-        firstName: "",
-        middleName: "",
-        lastName: "",
-    });
-    const [dirties, setDirties] = useState({
-        firstName: false,
-        middleName: false,
-        lastName: false,
+
+    const formik = useFormik({
+        enableReinitialize: true,
+        initialValues: player,
+        validationSchema: Yup.object({
+            firstName: Yup.string()
+                .max(15, "Must be 20 characters or less")
+                .required("Required"),
+            middleName: Yup.string()
+                .max(15, "Must be 20 characters or less")
+                .nullable(),
+            lastName: Yup.string()
+                .max(20, "Must be 20 characters or less")
+                .required("Required"),
+            id: Yup.number(),
+            forceRefresh: Yup.boolean(),
+        }),
+        onSubmit: (values) => {
+            const difference = getDifference(values, player);
+            console.log(values, player, difference);
+            fetch(`rest/player/${value}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json;charset=utf-8",
+                },
+                body: JSON.stringify(difference),
+            });
+            setEdit(false);
+        },
     });
 
     const options = positions.map((position) => {
@@ -31,84 +53,6 @@ export const PlayerCrudModal = ({ open, onClose, value }) => {
         setPlayer(data.data[0]);
     }, [value]);
 
-    useEffect(() => {
-        if (errors.firstName || errors.middleName || errors.lastName) {
-            setFormValid(false);
-        } else {
-            setFormValid(true);
-        }
-    }, [errors.firstName, errors.middleName, errors.lastName]);
-
-    const onSubmit = (e) => {
-        fetch(`rest/player/${value}`, {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json;charset=utf-8",
-            },
-            body: JSON.stringify(difference),
-        });
-        setEdit(false);
-        setDirties({
-            firstName: false,
-            middleName: false,
-            lastName: false,
-        });
-        setDifference({});
-        setErrors({
-            firstName: "",
-            middleName: "",
-            lastName: "",
-        });
-        e.preventDefault();
-    };
-
-    const inputHandler = (e) => {
-        setDifference({ ...difference, [e.target.name]: e.target.value });
-
-        setPlayer({
-            ...player,
-            [e.target.name]: e.target.value,
-        });
-
-        const re = /^[A-Z]{1}[a-zA-Z]{1,30}$/gm;
-
-        if (
-            (e.target.value && re.test(String(e.target.value))) ||
-            (!e.target.value && e.target.name === "middleName")
-        ) {
-            setErrors({ ...errors, [e.target.name]: "" });
-        } else {
-            if (
-                !e.target.value &&
-                (e.target.name === "firstName" || e.target.name === "lastName")
-            ) {
-                setErrors({
-                    ...errors,
-                    [e.target.name]: "The field can not be empty!",
-                });
-            } else {
-                setErrors({ ...errors, [e.target.name]: "Invalid value!" });
-            }
-        }
-    };
-
-    const selectHandler = (e) => {
-        setDifference({ ...difference, position: e.target.innerText });
-
-        setPlayer({
-            ...player,
-            position: e.target.innerText,
-        });
-    };
-
-    const focusHandler = (e) => {
-        setDirties({ ...dirties, [e.target.name]: false });
-    };
-
-    const blurHandler = (e) => {
-        setDirties({ ...dirties, [e.target.name]: true });
-    };
-
     const closeHandler = async () => {
         onClose(false);
         const data = await myFetch(`player/${value}`, {
@@ -116,23 +60,12 @@ export const PlayerCrudModal = ({ open, onClose, value }) => {
         });
         setPlayer(data.data[0]);
         setEdit(false);
-        setDirties({
-            firstName: false,
-            middleName: false,
-            lastName: false,
-        });
-        setDifference({});
-        setErrors({
-            firstName: "",
-            middleName: "",
-            lastName: "",
-        });
     };
 
     return (
         <Modal onClose={() => onClose(false)} open={open}>
             <Modal.Header>
-                {`${player.firstName} ${player.lastName}`}
+                {`${formik.values.firstName} ${formik.values.lastName}`}
             </Modal.Header>
             <Modal.Content image>
                 <Image
@@ -141,108 +74,126 @@ export const PlayerCrudModal = ({ open, onClose, value }) => {
                     src={`https://cms.nhl.bamgrid.com/images/headshots/current/168x168/${player.id}.jpg`}
                     wrapped
                 />
-                <Form id="player-form" className={s.form} onSubmit={onSubmit}>
+                <Form
+                    id="player-form"
+                    className={s.form}
+                    onSubmit={formik.handleSubmit}
+                >
                     <Form.Group grouped>
                         <Form.Input
-                            name="firstName"
+                            id="firstName"
                             label="First name"
                             placeholder="First name"
                             type="text"
-                            value={player.firstName}
-                            onChange={inputHandler}
-                            readOnly={!edit}
-                            onBlur={blurHandler}
-                            onFocus={focusHandler}
                             error={
                                 edit &&
-                                dirties.firstName &&
-                                !!errors.firstName && {
-                                    content: errors.firstName,
+                                formik.touched.firstName &&
+                                formik.errors.firstName && {
+                                    content: formik.errors.firstName,
                                     pointing: "below",
                                 }
                             }
+                            {...formik.getFieldProps("firstName")}
+                            readOnly={!edit}
                         />
-                        {(player.middleName || edit) && (
+                        {(formik.values.middleName || edit) && (
                             <Form.Input
-                                name="middleName"
+                                id="middleName"
                                 label="Middle name"
                                 placeholder="Middle name"
                                 type="text"
-                                value={player.middleName}
-                                onChange={inputHandler}
-                                readOnly={!edit}
-                                onBlur={blurHandler}
-                                onFocus={focusHandler}
                                 error={
                                     edit &&
-                                    dirties.middleName &&
-                                    !!errors.middleName && {
-                                        content: errors.middleName,
+                                    formik.touched.middleName &&
+                                    formik.errors.middleName && {
+                                        content: formik.errors.middleName,
                                         pointing: "below",
                                     }
                                 }
-                            />
-                        )}
-                        <Form.Input
-                            name="lastName"
-                            label="Last name"
-                            placeholder="Last name"
-                            type="text"
-                            value={player.lastName}
-                            onChange={inputHandler}
-                            readOnly={!edit}
-                            onBlur={blurHandler}
-                            onFocus={focusHandler}
-                            error={
-                                edit &&
-                                dirties.lastName &&
-                                !!errors.lastName && {
-                                    content: errors.lastName,
-                                    pointing: "below",
-                                }
-                            }
-                        />
-                        {(player.birthDate || edit) && (
-                            <Form.Input
-                                name="birthDate"
-                                label="Birth date"
-                                placeholder="Birth date"
-                                type="date"
-                                value={player.birthDate}
-                                onChange={inputHandler}
+                                {...formik.getFieldProps("middleName")}
                                 readOnly={!edit}
                             />
                         )}
-                        {player.team && (
+                        <Form.Input
+                            id="lastName"
+                            label="Last name"
+                            placeholder="Last name"
+                            type="text"
+                            error={
+                                edit &&
+                                formik.touched.lastName &&
+                                formik.errors.lastName && {
+                                    content: formik.errors.lastName,
+                                    pointing: "below",
+                                }
+                            }
+                            {...formik.getFieldProps("lastName")}
+                            readOnly={!edit}
+                        />
+                        {(formik.values.birthDate || edit) && (
                             <Form.Input
-                                label="Team"
-                                placeholder="Team"
-                                type="text"
-                                value={player.team.commonName}
-                                readOnly
+                                id="birthDate"
+                                label="Birth date"
+                                placeholder="Birth date"
+                                type="date"
+                                error={
+                                    edit &&
+                                    formik.touched.birthDate &&
+                                    formik.errors.birthDate && {
+                                        content: formik.errors.birthDate,
+                                        pointing: "below",
+                                    }
+                                }
+                                {...formik.getFieldProps("birthDate")}
+                                readOnly={!edit}
                             />
                         )}
+                        <Form.Input
+                            id="team"
+                            label="Team"
+                            placeholder="Team"
+                            type="text"
+                            value={formik.values.team.commonName}
+                            readOnly
+                        />
                         <Form.Select
-                            name="position"
+                            id="position"
                             label="Position"
                             placeholder="Position"
-                            value={player.position}
                             options={options}
-                            onChange={selectHandler}
+                            error={
+                                edit &&
+                                formik.touched.position &&
+                                formik.errors.position && {
+                                    content: formik.errors.position,
+                                    pointing: "below",
+                                }
+                            }
+                            {...formik.getFieldProps("position")}
                             readOnly={!edit}
                         />
                     </Form.Group>
                     <Form.Group grouped className={s.techData}>
                         <Form.Input
+                            id="id"
                             label="ID"
                             inline
                             type="text"
-                            value={player.id}
-                            readOnly={!edit}
+                            {...formik.getFieldProps("id")}
+                            readOnly
                         />
                         <Form.Checkbox
+                            id="forceRefresh"
                             label="Force refresh"
-                            checked={player.forceRefresh}
+                            error={
+                                edit &&
+                                formik.touched.forceRefresh &&
+                                formik.errors.forceRefresh && {
+                                    content: formik.errors.forceRefresh,
+                                    pointing: "below",
+                                }
+                            }
+                            {...formik.getFieldProps("forceRefresh")}
                         />
                     </Form.Group>
                 </Form>
@@ -250,7 +201,7 @@ export const PlayerCrudModal = ({ open, onClose, value }) => {
             <Modal.Actions>
                 {edit ? (
                     <Input
-                        disabled={!formValid}
+                        disabled={formik.isSubmitting}
                         type="submit"
                         form="player-form"
                         value="Save"
