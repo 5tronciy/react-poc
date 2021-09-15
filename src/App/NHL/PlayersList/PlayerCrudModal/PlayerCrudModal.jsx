@@ -183,6 +183,7 @@ export const PlayerCrudModal = ({ open, onClose, value }) => {
                             label="Position"
                             placeholder="Position"
                             options={options}
+                            selection
                             error={
                                 formik.touched.position &&
                                 formik.errors.position
