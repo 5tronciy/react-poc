@@ -1,37 +1,48 @@
 import React, { useEffect, useState } from "react";
-import { Button, Image, Modal, Form, Icon } from "semantic-ui-react";
+import {
+    Button,
+    Image,
+    Modal,
+    Form,
+    Icon,
+    Placeholder,
+    Header,
+    Checkbox,
+    Label,
+} from "semantic-ui-react";
 import { useFormik } from "formik";
 
 import { myFetch } from "../../../../utils/myFetch";
 import { getDifference } from "../../../../utils/getDifference";
-import s from "./PlayerCrudModal.less";
 import { positions } from "../../../../utils/constants";
+
+const initial = {
+    firstName: "",
+    middleName: "",
+    lastName: "",
+    birthDate: "",
+    team: "",
+    position: "",
+    id: "",
+    forceRefresh: false,
+};
 
 const validate = (values) => {
     const errors = {};
-    const regExpName = /^[A-Z]{1}[a-zA-Z]{1,30}$/;
     const regExpDate = /\d{4}\-(0?[1-9]|1[012])\-(0?[1-9]|[12][0-9]|3[01])*/;
 
     if (!values.firstName) {
         errors.firstName = "Required";
-    } else if (!regExpName.test(String(values.firstName))) {
-        errors.firstName = "Invalid name";
     } else if (values.firstName.length > 20) {
         errors.firstName = "Must be 20 characters or less";
     }
 
-    if (values.middleName) {
-        if (!regExpName.test(String(values.middleName))) {
-            errors.middleName = "Invalid name";
-        } else if (values.middleName.length > 20) {
-            errors.middleName = "Must be 20 characters or less";
-        }
+    if (values.middleName && values.middleName.length > 20) {
+        errors.middleName = "Must be 20 characters or less";
     }
 
     if (!values.lastName) {
         errors.lastName = "Required";
-    } else if (!regExpName.test(String(values.lastName))) {
-        errors.lastName = "Invalid name";
     } else if (values.lastName.length > 20) {
         errors.lastName = "Must be 20 characters or less";
     }
@@ -45,8 +56,9 @@ const validate = (values) => {
 
 export const PlayerCrudModal = ({ open, onClose, value }) => {
     const [player, setPlayer] = useState({});
-    const [playerData, setPlayerData] = useState({});
-    const [edit, setEdit] = useState(false);
+    const [playerData, setPlayerData] = useState(initial);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(false);
 
     const formik = useFormik({
         enableReinitialize: true,
@@ -54,7 +66,6 @@ export const PlayerCrudModal = ({ open, onClose, value }) => {
         validate,
         onSubmit: (values) => {
             const difference = getDifference(values, playerData);
-            console.log(values, playerData, difference);
             fetch(`rest/player/${value}`, {
                 method: "PUT",
                 headers: {
@@ -62,7 +73,9 @@ export const PlayerCrudModal = ({ open, onClose, value }) => {
                 },
                 body: JSON.stringify(difference),
             });
-            setEdit(false);
+            setLoading(true);
+            setError(false);
+            onClose(false);
         },
     });
 
@@ -76,55 +89,79 @@ export const PlayerCrudModal = ({ open, onClose, value }) => {
         });
         setPlayer(data.data[0]);
         setPlayerData({
-            firstName: data.data[0].firstName,
-            middleName: data.data[0].middleName,
-            lastName: data.data[0].lastName,
-            birthDate: data.data[0].birthDate,
-            team: data.data[0].team.commonName,
-            position: data.data[0].position,
-            id: data.data[0].id,
-            forceRefresh: data.data[0].forceRefresh,
+            firstName: data.data[0].firstName || "",
+            middleName: data.data[0].middleName || "",
+            lastName: data.data[0].lastName || "",
+            birthDate: data.data[0].birthDate || "",
+            team: data.data[0].team.commonName || "",
+            position: data.data[0].position || "",
+            id: data.data[0].id || "",
+            forceRefresh: data.data[0].forceRefresh || false,
         });
     }, [value]);
 
     const closeHandler = async () => {
         onClose(false);
-        const data = await myFetch(`player/${value}`, {
-            include: ["team"],
-        });
-        setPlayer(data.data[0]);
-        setEdit(false);
+        setPlayerData(initial);
+        setLoading(true);
+        setError(false);
     };
 
     return (
         <Modal onClose={() => onClose(false)} open={open}>
             <Modal.Header>
-                {`${formik.values.firstName} ${formik.values.lastName}`}
+                <Header floated="right">
+                    <Checkbox
+                        toggle
+                        name="forceRefresh"
+                        label="Force refresh"
+                        checked={formik.values.forceRefresh}
+                        onChange={() =>
+                            formik.setFieldValue(
+                                "forceRefresh",
+                                !formik.values.forceRefresh
+                            )
+                        }
+                    />
+                </Header>
+                <Header
+                    floated="left"
+                    as="h2"
+                >{`${player.firstName} ${player.lastName}`}</Header>
+                <Label color="grey">{player.id}</Label>
             </Modal.Header>
             <Modal.Content image>
+                {loading && (
+                    <Placeholder style={{ height: 168, width: 168 }}>
+                        <Placeholder.Image square />
+                    </Placeholder>
+                )}
                 <Image
-                    className={s.image}
-                    size="medium"
-                    src={`https://cms.nhl.bamgrid.com/images/headshots/current/168x168/${player.id}.jpg`}
+                    src={
+                        error
+                            ? "https://react.semantic-ui.com/images/avatar/small/matthew.png"
+                            : `https://cms.nhl.bamgrid.com/images/headshots/current/168x168/${player.id}.jpg`
+                    }
                     wrapped
+                    onLoad={() => setLoading(false)}
+                    onError={() => setError(true)}
                 />
-                <Form className={s.form}>
-                    <Form.Group grouped>
-                        <Form.Input
-                            name="firstName"
-                            label="First name"
-                            placeholder="First name"
-                            type="text"
-                            error={
-                                formik.touched.firstName &&
-                                formik.errors.firstName
-                            }
-                            value={formik.values.firstName}
-                            onChange={formik.handleChange}
-                            onBlur={formik.handleBlur}
-                            readOnly={!edit}
-                        />
-                        {(formik.values.middleName || edit) && (
+                <Modal.Description>
+                    <Form>
+                        <Form.Group widths="equal">
+                            <Form.Input
+                                name="firstName"
+                                label="First name"
+                                placeholder="First name"
+                                type="text"
+                                error={
+                                    formik.touched.firstName &&
+                                    formik.errors.firstName
+                                }
+                                value={formik.values.firstName}
+                                onChange={formik.handleChange}
+                                onBlur={formik.handleBlur}
+                            />
                             <Form.Input
                                 name="middleName"
                                 label="Middle name"
@@ -137,24 +174,22 @@ export const PlayerCrudModal = ({ open, onClose, value }) => {
                                 value={formik.values.middleName}
                                 onChange={formik.handleChange}
                                 onBlur={formik.handleBlur}
-                                readOnly={!edit}
                             />
-                        )}
-                        <Form.Input
-                            name="lastName"
-                            label="Last name"
-                            placeholder="Last name"
-                            type="text"
-                            error={
-                                formik.touched.lastName &&
-                                formik.errors.lastName
-                            }
-                            value={formik.values.lastName}
-                            onChange={formik.handleChange}
-                            onBlur={formik.handleBlur}
-                            readOnly={!edit}
-                        />
-                        {(formik.values.birthDate || edit) && (
+                            <Form.Input
+                                name="lastName"
+                                label="Last name"
+                                placeholder="Last name"
+                                type="text"
+                                error={
+                                    formik.touched.lastName &&
+                                    formik.errors.lastName
+                                }
+                                value={formik.values.lastName}
+                                onChange={formik.handleChange}
+                                onBlur={formik.handleBlur}
+                            />
+                        </Form.Group>
+                        <Form.Group>
                             <Form.Input
                                 name="birthDate"
                                 label="Birth date"
@@ -167,89 +202,50 @@ export const PlayerCrudModal = ({ open, onClose, value }) => {
                                 value={formik.values.birthDate}
                                 onChange={formik.handleChange}
                                 onBlur={formik.handleBlur}
-                                readOnly={!edit}
                             />
-                        )}
-                        <Form.Input
-                            name="team"
-                            label="Team"
-                            placeholder="Team"
-                            type="text"
-                            value={formik.values.team}
-                            readOnly
-                        />
-                        <Form.Dropdown
-                            name="position"
-                            label="Position"
-                            placeholder="Position"
-                            options={options}
-                            selection
-                            error={
-                                formik.touched.position &&
-                                formik.errors.position
-                            }
-                            value={formik.values.position}
-                            onChange={(_, { value }) =>
-                                setPlayerData({
-                                    ...playerData,
-                                    position: value,
-                                })
-                            }
-                            readOnly={!edit}
-                        />
-                    </Form.Group>
-                    <Form.Group grouped className={s.techData}>
-                        <Form.Input
-                            name="id"
-                            label="ID"
-                            inline
-                            type="text"
-                            value={formik.values.id}
-                            readOnly
-                        />
-                        <Form.Checkbox
-                            name="forceRefresh"
-                            label="Force refresh"
-                            error={
-                                formik.touched.forceRefresh &&
-                                formik.errors.forceRefresh
-                            }
-                            value={formik.values.forceRefresh}
-                            onChange={formik.handleChange}
-                            onBlur={formik.handleBlur}
-                        />
-                    </Form.Group>
-                </Form>
+                            <Form.Input
+                                name="team"
+                                label="Team"
+                                placeholder="Team"
+                                type="text"
+                                value={formik.values.team}
+                            />
+                            <Form.Dropdown
+                                name="position"
+                                label="Position"
+                                placeholder="Position"
+                                options={options}
+                                selection
+                                error={
+                                    formik.touched.position &&
+                                    formik.errors.position
+                                }
+                                value={formik.values.position}
+                                onChange={(_, { value }) =>
+                                    formik.setFieldValue("position", value)
+                                }
+                            />
+                        </Form.Group>
+                    </Form>
+                </Modal.Description>
             </Modal.Content>
             <Modal.Actions>
-                {edit ? (
-                    <Button
-                        color="orange"
-                        labelPosition="right"
-                        icon
-                        onClick={formik.submitForm}
-                    >
-                        Save
-                        <Icon name="save" color="yellow" />
-                    </Button>
-                ) : (
-                    <Button
-                        color="grey"
-                        labelPosition="right"
-                        icon
-                        onClick={() => setEdit(true)}
-                    >
-                        Edit
-                        <Icon name="edit" color="grey" />
-                    </Button>
-                )}
                 <Button
-                    content="Close"
+                    content="Submit"
                     labelPosition="right"
                     icon="checkmark"
-                    onClick={closeHandler}
+                    onClick={formik.submitForm}
                     positive
                 />
+                <Button
+                    color="orange"
+                    labelPosition="right"
+                    icon
+                    onClick={closeHandler}
+                >
+                    Cancel
+                    <Icon name="cancel" color="yellow" />
+                </Button>
             </Modal.Actions>
         </Modal>
     );
