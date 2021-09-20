@@ -12,7 +12,6 @@ import {
 import { useFormik } from "formik";
 
 import { positions } from "../../../../utils/constants";
-import { myFetch } from "../../../../utils/myFetch";
 
 const initial = {
     firstName: "",
@@ -201,7 +200,11 @@ export const PlayerCreator = ({ open, onClose }) => {
                                         return {
                                             key: team.id,
                                             value: team.id,
-                                            text: team.fullName,
+                                            text: team.commonName,
+                                            image: {
+                                                avatar: true,
+                                                src: `rest/team/${team.id}.svg`,
+                                            },
                                         };
                                     }
                                 )}
