@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
     Button,
     Image,
@@ -12,6 +12,7 @@ import {
 import { useFormik } from "formik";
 
 import { positions } from "../../../../utils/constants";
+import { myFetch } from "../../../../utils/myFetch";
 
 const initial = {
     firstName: "",
@@ -20,7 +21,7 @@ const initial = {
     birthDate: "",
     position: "",
     forceRefresh: false,
-    team: 1,
+    team: "",
 };
 
 const validate = (values) => {
@@ -55,7 +56,14 @@ export const PlayerCreator = ({ open, onClose }) => {
         player: initial,
         loading: true,
         error: false,
+        teams: undefined,
     });
+
+    useEffect(async () => {
+        const response = await fetch("rest/team?sort=fullName");
+        const data = await response.json();
+        setPlayerFrame({ ...playerFrame, teams: data.data });
+    }, []);
 
     const formik = useFormik({
         enableReinitialize: true,
@@ -184,12 +192,27 @@ export const PlayerCreator = ({ open, onClose }) => {
                                 onChange={formik.handleChange}
                                 onBlur={formik.handleBlur}
                             />
-                            <Form.Input
+                            <Form.Dropdown
                                 name="team"
                                 label="Team"
                                 placeholder="Team"
-                                type="text"
+                                options={(playerFrame.teams || []).map(
+                                    (team) => {
+                                        return {
+                                            key: team.id,
+                                            value: team.id,
+                                            text: team.fullName,
+                                        };
+                                    }
+                                )}
+                                selection
+                                error={
+                                    formik.touched.team && formik.errors.team
+                                }
                                 value={formik.values.team}
+                                onChange={(_, { value }) =>
+                                    formik.setFieldValue("team", value)
+                                }
                             />
                             <Form.Dropdown
                                 name="position"
