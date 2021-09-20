@@ -54,18 +54,20 @@ const validate = (values) => {
     return errors;
 };
 
-export const PlayerCrudModal = ({ open, onClose, value }) => {
+export const PlayerEditor = ({ open, onClose, value }) => {
     const [player, setPlayer] = useState({});
-    const [playerData, setPlayerData] = useState(initial);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(false);
+    const [playerFrame, setPlayerFrame] = useState({
+        player: initial,
+        loading: true,
+        error: false,
+    });
 
     const formik = useFormik({
         enableReinitialize: true,
-        initialValues: playerData,
+        initialValues: playerFrame.player,
         validate,
         onSubmit: (values) => {
-            const difference = getDifference(values, playerData);
+            const difference = getDifference(values, playerFrame.player);
             fetch(`rest/player/${value}`, {
                 method: "PUT",
                 headers: {
@@ -73,8 +75,7 @@ export const PlayerCrudModal = ({ open, onClose, value }) => {
                 },
                 body: JSON.stringify(difference),
             });
-            setLoading(true);
-            setError(false);
+            setPlayerFrame({ ...playerFrame, loading: true, error: false });
             onClose(false);
         },
     });
@@ -88,23 +89,24 @@ export const PlayerCrudModal = ({ open, onClose, value }) => {
             include: ["team"],
         });
         setPlayer(data.data[0]);
-        setPlayerData({
-            firstName: data.data[0].firstName || "",
-            middleName: data.data[0].middleName || "",
-            lastName: data.data[0].lastName || "",
-            birthDate: data.data[0].birthDate || "",
-            team: data.data[0].team.commonName || "",
-            position: data.data[0].position || "",
-            id: data.data[0].id || "",
-            forceRefresh: data.data[0].forceRefresh || false,
+        setPlayerFrame({
+            ...playerFrame,
+            player: {
+                firstName: data.data[0].firstName || "",
+                middleName: data.data[0].middleName || "",
+                lastName: data.data[0].lastName || "",
+                birthDate: data.data[0].birthDate || "",
+                team: data.data[0].team.commonName || "",
+                position: data.data[0].position || "",
+                id: data.data[0].id || "",
+                forceRefresh: data.data[0].forceRefresh || false,
+            },
         });
     }, [value]);
 
     const closeHandler = async () => {
         onClose(false);
-        setPlayerData(initial);
-        setLoading(true);
-        setError(false);
+        setPlayerFrame({ player: initial, loading: true, error: false });
     };
 
     return (
@@ -131,20 +133,24 @@ export const PlayerCrudModal = ({ open, onClose, value }) => {
                 <Label color="grey">{player.id}</Label>
             </Modal.Header>
             <Modal.Content image>
-                {loading && (
+                {playerFrame.loading && (
                     <Placeholder style={{ height: 168, width: 168 }}>
                         <Placeholder.Image square />
                     </Placeholder>
                 )}
                 <Image
                     src={
-                        error
+                        playerFrame.error
                             ? "https://react.semantic-ui.com/images/avatar/small/matthew.png"
                             : `https://cms.nhl.bamgrid.com/images/headshots/current/168x168/${player.id}.jpg`
                     }
                     wrapped
-                    onLoad={() => setLoading(false)}
-                    onError={() => setError(true)}
+                    onLoad={() =>
+                        setPlayerFrame({ ...playerFrame, loading: false })
+                    }
+                    onError={() =>
+                        setPlayerFrame({ ...playerFrame, error: true })
+                    }
                 />
                 <Modal.Description>
                     <Form>
@@ -231,7 +237,7 @@ export const PlayerCrudModal = ({ open, onClose, value }) => {
             </Modal.Content>
             <Modal.Actions>
                 <Button
-                    content="Submit"
+                    content="Save"
                     labelPosition="right"
                     icon="checkmark"
                     onClick={formik.submitForm}

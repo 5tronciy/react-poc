@@ -6,7 +6,7 @@ export const TeamsFilter = ({ onChange, value }) => {
     return (
         <div className={s.container}>
             <Input
-                size="large"
+                size="small"
                 icon="search"
                 placeholder="Find team"
                 type="text"

@@ -1,5 +1,5 @@
 import React from "react";
-import { Input, Checkbox } from "semantic-ui-react";
+import { Input, Button } from "semantic-ui-react";
 import s from "./PlayersFilter.less";
 import { positions } from "../../../../utils/constants";
 
@@ -17,23 +17,10 @@ export const PlayersFilter = ({ onChange, value }) => {
 
     return (
         <div className={s.container}>
-            <div className={s.checkBoxes}>
-                {positions.map((position) => (
-                    <div className={s.checkBox} key={position.id}>
-                        <Checkbox
-                            label={position.name}
-                            onChange={() => handleToggle(position.id)}
-                            checked={
-                                value.checked &&
-                                value.checked.includes(position.id)
-                            }
-                        />
-                    </div>
-                ))}
-            </div>
             <div className={s.input}>
                 <Input
-                    size="large"
+                    fluid
+                    size="small"
                     icon="search"
                     placeholder="Find player"
                     type="text"
@@ -42,6 +29,22 @@ export const PlayersFilter = ({ onChange, value }) => {
                         onChange(e.currentTarget.value);
                     }}
                 />
+            </div>
+            <div className="buttonGroup">
+                <Button.Group size="small">
+                    {positions.map((position) => (
+                        <Button
+                            key={position.id}
+                            active={
+                                value.checked &&
+                                value.checked.includes(position.id)
+                            }
+                            onClick={() => handleToggle(position.id)}
+                        >
+                            {position.name}
+                        </Button>
+                    ))}
+                </Button.Group>
             </div>
         </div>
     );

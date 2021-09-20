@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-
 import s from "./Nhl.less";
 
 import { TeamsList } from "./TeamsList/TeamsList";

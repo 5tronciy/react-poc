@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Loader, Card } from "semantic-ui-react";
+import { Loader, Card, Segment } from "semantic-ui-react";
 import s from "./PlayersList.less";
 import { PlayersFilter } from "./PlayersFilter/PlayersFilter";
 import { PlayerCard } from "../PlayerCard/PlayerCard";
-import { PlayerCrudModal } from "./PlayerCrudModal/PlayerCrudModal";
+import { PlayerEditor } from "./PlayerEditor/PlayerEditor";
 import { myFetch } from "../../../utils/myFetch";
 import { positions, delay } from "../../../utils/constants";
 
@@ -86,35 +86,37 @@ export const PlayersList = ({ team }) => {
 
     return (
         <div className={s.container}>
-            <div className={s.filter}>
-                <PlayersFilter
-                    onChange={setQuery}
-                    value={{ query, checked, setChecked }}
-                />
-            </div>
-            <div className={s.players}>
-                <Loader active={players === undefined} />
-                <Card.Group>
-                    {(players || []).map((player) => (
-                        <div
-                            key={player.id}
-                            className={s.player}
-                            onClick={() => {
-                                setPlayer(player);
-                                setOpen(true);
-                            }}
-                        >
-                            <PlayerCard player={player} />
-                        </div>
-                    ))}
-                </Card.Group>
-            </div>
+            <Segment.Group>
+                <Segment>
+                    <div className={s.filter}>
+                        <PlayersFilter
+                            onChange={setQuery}
+                            value={{ query, checked, setChecked }}
+                        />
+                    </div>
+                </Segment>
+                <Segment>
+                    <div className={s.players}>
+                        <Loader active={players === undefined} />
+                        <Card.Group>
+                            {(players || []).map((player) => (
+                                <div
+                                    key={player.id}
+                                    className={s.player}
+                                    onClick={() => {
+                                        setPlayer(player);
+                                        setOpen(true);
+                                    }}
+                                >
+                                    <PlayerCard player={player} />
+                                </div>
+                            ))}
+                        </Card.Group>
+                    </div>
+                </Segment>
+            </Segment.Group>
             {player.id && (
-                <PlayerCrudModal
-                    open={open}
-                    onClose={setOpen}
-                    value={player.id}
-                />
+                <PlayerEditor open={open} onClose={setOpen} value={player.id} />
             )}
         </div>
     );
