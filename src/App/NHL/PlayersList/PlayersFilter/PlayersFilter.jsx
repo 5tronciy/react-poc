@@ -1,9 +1,12 @@
-import React from "react";
-import { Input, Button } from "semantic-ui-react";
+import React, { useState } from "react";
+import { Input, Button, Icon } from "semantic-ui-react";
 import s from "./PlayersFilter.less";
 import { positions } from "../../../../utils/constants";
+import { PlayerCreator } from "../PlayerCreator/PlayerCreator";
 
 export const PlayersFilter = ({ onChange, value }) => {
+    const [open, setOpen] = useState(false);
+    const player = { id: 8475788 };
     const handleToggle = (val) => {
         const currentIndex = value.checked.indexOf(val);
         const newChecked = [...value.checked];
@@ -17,6 +20,17 @@ export const PlayersFilter = ({ onChange, value }) => {
 
     return (
         <div className={s.container}>
+            <div className="addPlayer">
+                <Button
+                    size="small"
+                    icon
+                    onClick={() => {
+                        setOpen(true);
+                    }}
+                >
+                    <Icon name="add user" />
+                </Button>
+            </div>
             <div className={s.input}>
                 <Input
                     fluid
@@ -46,6 +60,7 @@ export const PlayersFilter = ({ onChange, value }) => {
                     ))}
                 </Button.Group>
             </div>
+            <PlayerCreator open={open} onClose={setOpen} value={player.id} />
         </div>
     );
 };
