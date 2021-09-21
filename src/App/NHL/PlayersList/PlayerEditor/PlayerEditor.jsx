@@ -55,11 +55,11 @@ const validate = (values) => {
 };
 
 export const PlayerEditor = ({ open, onClose, value }) => {
-    const [player, setPlayer] = useState({});
     const [playerFrame, setPlayerFrame] = useState({
         player: initial,
         loading: true,
         error: false,
+        teams: undefined,
     });
 
     const formik = useFormik({
@@ -67,15 +67,35 @@ export const PlayerEditor = ({ open, onClose, value }) => {
         initialValues: playerFrame.player,
         validate,
         onSubmit: (values) => {
-            const difference = getDifference(values, playerFrame.player);
-            fetch(`rest/player/${value}`, {
-                method: "PUT",
-                headers: {
-                    "Content-Type": "application/json;charset=utf-8",
-                },
-                body: JSON.stringify(difference),
+            if (value) {
+                const difference = getDifference(values, playerFrame.player);
+                fetch(`rest/player/${value}`, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json;charset=utf-8",
+                    },
+                    body: JSON.stringify(difference),
+                });
+            } else {
+                fetch("rest/player", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json;charset=utf-8",
+                    },
+                    body: JSON.stringify({
+                        ...Object.entries(values).reduce(
+                            (acc, [key, value]) =>
+                                value !== "" ? { ...acc, [key]: value } : acc,
+                            {}
+                        ),
+                        id: Math.round(Math.random() * 1000000000),
+                    }),
+                });
+            }
+
+            setPlayerFrame((state) => {
+                return { ...state, loading: true, error: false };
             });
-            setPlayerFrame({ ...playerFrame, loading: true, error: false });
             onClose(false);
         },
     });
@@ -85,23 +105,33 @@ export const PlayerEditor = ({ open, onClose, value }) => {
     });
 
     useEffect(async () => {
-        const data = await myFetch(`player/${value}`, {
-            include: ["team"],
-        });
-        setPlayer(data.data[0]);
-        setPlayerFrame({
-            ...playerFrame,
-            player: {
-                firstName: data.data[0].firstName || "",
-                middleName: data.data[0].middleName || "",
-                lastName: data.data[0].lastName || "",
-                birthDate: data.data[0].birthDate || "",
-                team: data.data[0].team.commonName || "",
-                position: data.data[0].position || "",
-                id: data.data[0].id || "",
-                forceRefresh: data.data[0].forceRefresh || false,
-            },
-        });
+        const response = await fetch("rest/team?sort=fullName");
+        const data = await response.json();
+        setPlayerFrame({ ...playerFrame, teams: data.data });
+    }, []);
+
+    useEffect(async () => {
+        if (value) {
+            const data = await myFetch(`player/${value}`, {
+                include: ["team"],
+            });
+            console.log(data.data[0]);
+            setPlayerFrame((state) => {
+                return {
+                    ...state,
+                    player: {
+                        firstName: data.data[0].firstName || "",
+                        middleName: data.data[0].middleName || "",
+                        lastName: data.data[0].lastName || "",
+                        birthDate: data.data[0].birthDate || "",
+                        team: data.data[0].team.id || "",
+                        position: data.data[0].position || "",
+                        id: data.data[0].id || "",
+                        forceRefresh: data.data[0].forceRefresh || false,
+                    },
+                };
+            });
+        }
     }, [value]);
 
     const closeHandler = async () => {
@@ -126,11 +156,17 @@ export const PlayerEditor = ({ open, onClose, value }) => {
                         }
                     />
                 </Header>
-                <Header
-                    floated="left"
-                    as="h2"
-                >{`${player.firstName} ${player.lastName}`}</Header>
-                <Label color="grey">{player.id}</Label>
+                {value ? (
+                    <>
+                        <Header
+                            floated="left"
+                            as="h2"
+                        >{`${playerFrame.player.firstName} ${playerFrame.player.lastName}`}</Header>
+                        <Label color="grey">{playerFrame.player.id}</Label>
+                    </>
+                ) : (
+                    "Create new player"
+                )}
             </Modal.Header>
             <Modal.Content image>
                 {playerFrame.loading && (
@@ -140,9 +176,9 @@ export const PlayerEditor = ({ open, onClose, value }) => {
                 )}
                 <Image
                     src={
-                        playerFrame.error
+                        playerFrame.error && !value
                             ? "https://react.semantic-ui.com/images/avatar/small/matthew.png"
-                            : `https://cms.nhl.bamgrid.com/images/headshots/current/168x168/${player.id}.jpg`
+                            : `https://cms.nhl.bamgrid.com/images/headshots/current/168x168/${playerFrame.player.id}.jpg`
                     }
                     wrapped
                     onLoad={() =>
@@ -209,12 +245,31 @@ export const PlayerEditor = ({ open, onClose, value }) => {
                                 onChange={formik.handleChange}
                                 onBlur={formik.handleBlur}
                             />
-                            <Form.Input
+                            <Form.Dropdown
                                 name="team"
                                 label="Team"
                                 placeholder="Team"
-                                type="text"
+                                options={(playerFrame.teams || []).map(
+                                    (team) => {
+                                        return {
+                                            key: team.id,
+                                            value: team.id,
+                                            text: team.commonName,
+                                            image: {
+                                                avatar: true,
+                                                src: `rest/team/${team.id}.svg`,
+                                            },
+                                        };
+                                    }
+                                )}
+                                selection
+                                error={
+                                    formik.touched.team && formik.errors.team
+                                }
                                 value={formik.values.team}
+                                onChange={(_, { value }) =>
+                                    formik.setFieldValue("team", value)
+                                }
                             />
                             <Form.Dropdown
                                 name="position"
