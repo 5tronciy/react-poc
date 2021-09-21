@@ -66,7 +66,7 @@ export const PlayerEditor = ({ open, onClose, value }) => {
         enableReinitialize: true,
         initialValues: playerFrame.player,
         validate,
-        onSubmit: (values) => {
+        onSubmit: async (values) => {
             if (value) {
                 const difference = getDifference(values, playerFrame.player);
                 fetch(`rest/player/${value}`, {
@@ -77,6 +77,11 @@ export const PlayerEditor = ({ open, onClose, value }) => {
                     body: JSON.stringify(difference),
                 });
             } else {
+                const response = await fetch(
+                    "rest/player?sort=id&dir=DESC&limit=1"
+                );
+                const lastPlayer = await response.json();
+                const maxId = lastPlayer.data[0].id;
                 fetch("rest/player", {
                     method: "POST",
                     headers: {
@@ -88,7 +93,7 @@ export const PlayerEditor = ({ open, onClose, value }) => {
                                 value !== "" ? { ...acc, [key]: value } : acc,
                             {}
                         ),
-                        id: Math.round(Math.random() * 1000000000),
+                        id: maxId + 1,
                     }),
                 });
             }
@@ -111,11 +116,11 @@ export const PlayerEditor = ({ open, onClose, value }) => {
     }, []);
 
     useEffect(async () => {
+        console.log("fetch player, id=" + value);
         if (value) {
             const data = await myFetch(`player/${value}`, {
                 include: ["team"],
             });
-            console.log(data.data[0]);
             setPlayerFrame((state) => {
                 return {
                     ...state,
@@ -132,9 +137,16 @@ export const PlayerEditor = ({ open, onClose, value }) => {
                 };
             });
         }
-    }, [value]);
+    }, [value, playerFrame.player.id]);
 
-    const closeHandler = async () => {
+    const deleteHandler = () => {
+        fetch(`rest/player/${value}`, {
+            method: "DELETE",
+        });
+        closeHandler();
+    };
+
+    const closeHandler = () => {
         onClose(false);
         setPlayerFrame({ player: initial, loading: true, error: false });
     };
@@ -176,7 +188,7 @@ export const PlayerEditor = ({ open, onClose, value }) => {
                 )}
                 <Image
                     src={
-                        playerFrame.error && !value
+                        playerFrame.error || !value
                             ? "https://react.semantic-ui.com/images/avatar/small/matthew.png"
                             : `https://cms.nhl.bamgrid.com/images/headshots/current/168x168/${playerFrame.player.id}.jpg`
                     }
@@ -292,6 +304,13 @@ export const PlayerEditor = ({ open, onClose, value }) => {
             </Modal.Content>
             <Modal.Actions>
                 <Button
+                    content="Delete"
+                    color="red"
+                    labelPosition="right"
+                    icon={{ name: "user delete", color: "grey" }}
+                    onClick={deleteHandler}
+                />
+                <Button
                     content="Save"
                     labelPosition="right"
                     icon="checkmark"
@@ -299,14 +318,12 @@ export const PlayerEditor = ({ open, onClose, value }) => {
                     positive
                 />
                 <Button
+                    content="Cancel"
                     color="orange"
                     labelPosition="right"
-                    icon
+                    icon={{ name: "cancel", color: "yellow" }}
                     onClick={closeHandler}
-                >
-                    Cancel
-                    <Icon name="cancel" color="yellow" />
-                </Button>
+                />
             </Modal.Actions>
         </Modal>
     );
