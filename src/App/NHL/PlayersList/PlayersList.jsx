@@ -55,7 +55,7 @@ export const PlayersList = ({ team }) => {
         const signal = controller.signal;
 
         const timeOutId = setTimeout(async () => {
-            const data = await myFetch(
+            const fetchedObject = await myFetch(
                 "player",
                 {
                     filter: filter(),
@@ -63,7 +63,7 @@ export const PlayersList = ({ team }) => {
                 },
                 signal
             );
-
+            const data = fetchedObject.parsedBody;
             setPlayers(data.data);
         }, delay);
 
@@ -71,10 +71,11 @@ export const PlayersList = ({ team }) => {
     }, [query]);
 
     useEffect(async () => {
-        const data = await myFetch("player", {
+        const fetchedObject = await myFetch("player", {
             filter: filter(),
             order: `[{"property":"position"},{"property":"lastName"},{"property":"firstName"}]`,
         });
+        const data = fetchedObject.parsedBody;
 
         setPlayers(data.data);
     }, [team, checked]);

@@ -22,7 +22,7 @@ export const TeamsList = ({ selected, setSelected }) => {
                 },
             };
 
-            const data = await myFetch(
+            const fetchedObject = await myFetch(
                 "team",
                 {
                     filter: filterTeam,
@@ -30,7 +30,7 @@ export const TeamsList = ({ selected, setSelected }) => {
                 },
                 signal
             );
-
+            const data = fetchedObject.parsedBody;
             setTeams(data.data);
             setQuantity(data.total);
         }, delay);
