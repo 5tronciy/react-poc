@@ -4,7 +4,6 @@ import {
     Image,
     Modal,
     Form,
-    Icon,
     Placeholder,
     Header,
     Checkbox,
@@ -13,8 +12,11 @@ import {
 import { useFormik } from "formik";
 
 import { myFetch } from "../../../../utils/myFetch";
-import { getDifference } from "../../../../utils/getDifference";
+import { loadData } from "../../../../utils/form/loadData";
+import { transformDataToForm } from "../../../../utils/form/transformDataToForm";
+import { transformDataToDB } from "../../../../utils/form/transformDataToDB";
 import { positions } from "../../../../utils/constants";
+import { saveData } from "../../../../utils/form/saveData";
 
 const initial = {
     firstName: "",
@@ -57,52 +59,9 @@ const validate = (values) => {
 export const PlayerEditor = ({ open, onClose, value }) => {
     const [playerFrame, setPlayerFrame] = useState({
         player: initial,
-        loading: true,
+        loading: { player: true, avatar: true },
         error: false,
         teams: undefined,
-    });
-
-    const formik = useFormik({
-        enableReinitialize: true,
-        initialValues: playerFrame.player,
-        validate,
-        onSubmit: async (values) => {
-            if (value) {
-                const difference = getDifference(values, playerFrame.player);
-                fetch(`rest/player/${value}`, {
-                    method: "PUT",
-                    headers: {
-                        "Content-Type": "application/json;charset=utf-8",
-                    },
-                    body: JSON.stringify(difference),
-                });
-            } else {
-                const response = await fetch(
-                    "rest/player?sort=id&dir=DESC&limit=1"
-                );
-                const lastPlayer = await response.json();
-                const maxId = lastPlayer.data[0].id;
-                fetch("rest/player", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json;charset=utf-8",
-                    },
-                    body: JSON.stringify({
-                        ...Object.entries(values).reduce(
-                            (acc, [key, value]) =>
-                                value !== "" ? { ...acc, [key]: value } : acc,
-                            {}
-                        ),
-                        id: maxId + 1,
-                    }),
-                });
-            }
-
-            setPlayerFrame((state) => {
-                return { ...state, loading: true, error: false };
-            });
-            onClose(false);
-        },
     });
 
     const options = positions.map((position) => {
@@ -110,34 +69,66 @@ export const PlayerEditor = ({ open, onClose, value }) => {
     });
 
     useEffect(async () => {
-        const response = await fetch("rest/team?sort=fullName");
-        const data = await response.json();
-        setPlayerFrame({ ...playerFrame, teams: data.data });
-    }, []);
-
-    useEffect(async () => {
-        console.log("fetch player, id=" + value);
         if (value) {
-            const data = await myFetch(`player/${value}`, {
-                include: ["team"],
-            });
+            // --- Data Loading ---
             setPlayerFrame((state) => {
                 return {
                     ...state,
-                    player: {
-                        firstName: data.data[0].firstName || "",
-                        middleName: data.data[0].middleName || "",
-                        lastName: data.data[0].lastName || "",
-                        birthDate: data.data[0].birthDate || "",
-                        team: data.data[0].team.id || "",
-                        position: data.data[0].position || "",
-                        id: data.data[0].id || "",
-                        forceRefresh: data.data[0].forceRefresh || false,
-                    },
+                    loading: { ...state.loading, player: true },
                 };
             });
+            const player = await loadData(`player/${value}`, {
+                include: ["team"],
+            });
+            // --- /Data Loading ---
+
+            // --- Transform Data To Form Format---
+            const formData = transformDataToForm(player);
+            setPlayerFrame((state) => {
+                return {
+                    ...state,
+                    player: formData,
+                    loading: { ...state.loading, player: false },
+                };
+            });
+            // --- /Transform Data To Form ---
         }
-    }, [value, playerFrame.player.id]);
+    }, [value]);
+
+    const submitHandler = async (values) => {
+        // --- Transform Data To DB Format ---
+        const dbData = transformDataToDB(values);
+        // --- /Transform Data To DB Format ---
+
+        // --- Data Saving ---
+        saveData(dbData, !!value);
+        // --- /Data Saving ---
+        setPlayerFrame((state) => {
+            return {
+                ...state,
+                loading: { ...state.loading, avatar: true },
+                error: false,
+            };
+        });
+        onClose(false);
+    };
+
+    // --- Use Data In Form ---
+    const formik = useFormik({
+        enableReinitialize: true,
+        initialValues: playerFrame.player,
+        validate,
+        onSubmit: submitHandler,
+    });
+    // --- /Use Data In Form ---
+
+    useEffect(async () => {
+        const fetchedObject = await myFetch("team", { order: "fullName" });
+        const data = fetchedObject.parsedBody;
+        setPlayerFrame((state) => {
+            return { ...state, teams: data.data };
+        });
+    }, []);
 
     const deleteHandler = () => {
         fetch(`rest/player/${value}`, {
@@ -148,7 +139,13 @@ export const PlayerEditor = ({ open, onClose, value }) => {
 
     const closeHandler = () => {
         onClose(false);
-        setPlayerFrame({ player: initial, loading: true, error: false });
+        setPlayerFrame((state) => {
+            return {
+                player: initial,
+                loading: { ...state.loading, avatar: true },
+                error: false,
+            };
+        });
     };
 
     return (
@@ -181,7 +178,7 @@ export const PlayerEditor = ({ open, onClose, value }) => {
                 )}
             </Modal.Header>
             <Modal.Content image>
-                {playerFrame.loading && (
+                {playerFrame.loading.avatar && (
                     <Placeholder style={{ height: 168, width: 168 }}>
                         <Placeholder.Image square />
                     </Placeholder>
@@ -194,10 +191,15 @@ export const PlayerEditor = ({ open, onClose, value }) => {
                     }
                     wrapped
                     onLoad={() =>
-                        setPlayerFrame({ ...playerFrame, loading: false })
+                        setPlayerFrame({
+                            ...playerFrame,
+                            loading: { ...playerFrame.loading, avatar: false },
+                        })
                     }
                     onError={() =>
-                        setPlayerFrame({ ...playerFrame, error: true })
+                        setPlayerFrame((state) => {
+                            return { ...state, error: true };
+                        })
                     }
                 />
                 <Modal.Description>
