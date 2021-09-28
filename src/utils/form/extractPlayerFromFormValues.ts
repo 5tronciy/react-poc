@@ -1,6 +1,8 @@
-import { PlayerToDb, PlayerFormData } from "./types";
+import { PlayerSerialized, PlayerFormData } from "./types";
 
-export const transformDataToDB = (data: PlayerFormData): PlayerToDb => {
+export const extractPlayerFromFormValues = (
+    data: PlayerFormData
+): PlayerSerialized => {
     return {
         firstName: data.firstName,
         middleName: data.middleName || null,

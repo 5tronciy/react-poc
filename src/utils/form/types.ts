@@ -16,15 +16,15 @@ export interface Player {
     forceRefresh: boolean;
 }
 
-export interface PlayerFromDb extends Player {
+export interface PlayerFetched extends Player {
     team: Team;
 }
 
-export interface PlayerToDb extends Player {
+export interface PlayerSerialized extends Player {
     team: number;
 }
 
-export type Team = {
+export interface Team {
     id: number;
     abbrev: string;
     active: boolean;
@@ -33,15 +33,8 @@ export type Team = {
     fullName: string;
     generalManager: string;
     location: string;
-};
+}
 
-export type PlayerFormData = {
-    id: number;
-    birthDate: string | null;
-    firstName: string;
-    middleName: string | null;
-    lastName: string;
-    position: Position;
-    forceRefresh: boolean;
+export interface PlayerFormData extends Player {
     team: number;
-};
+}

@@ -1,6 +1,8 @@
-import { PlayerFromDb, PlayerFormData } from "./types";
+import { PlayerFetched, PlayerFormData } from "./types";
 
-export const transformDataToForm = (data: PlayerFromDb): PlayerFormData => {
+export const extractFormValuesFromPlayer = (
+    data: PlayerFetched
+): PlayerFormData => {
     return {
         firstName: data.firstName,
         middleName: data.middleName || "",
