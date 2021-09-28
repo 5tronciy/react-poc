@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Loader, Card, Segment } from "semantic-ui-react";
 import s from "./PlayersList.less";
 import { PlayersFilter } from "./PlayersFilter/PlayersFilter";
-import { PlayerCard } from "../PlayerCard/PlayerCard";
-import { PlayerEditor } from "./PlayerEditor/PlayerEditor";
+import { PlayerCard } from "./PlayerCard/PlayerCard";
+import { PlayerEditor } from "../PlayerEditor/PlayerEditor";
 import { myFetch } from "../../../utils/myFetch";
 import { positions, delay } from "../../../utils/constants";
 
@@ -117,7 +117,11 @@ export const PlayersList = ({ team }) => {
                 </Segment>
             </Segment.Group>
             {player.id && (
-                <PlayerEditor open={open} onClose={setOpen} value={player.id} />
+                <PlayerEditor
+                    open={open}
+                    onClose={() => setOpen(false)}
+                    playerId={player.id}
+                />
             )}
         </div>
     );

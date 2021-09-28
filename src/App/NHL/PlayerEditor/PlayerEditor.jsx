@@ -1,22 +1,16 @@
 import React, { useEffect, useState } from "react";
-import {
-    Button,
-    Image,
-    Modal,
-    Form,
-    Placeholder,
-    Header,
-    Checkbox,
-    Label,
-} from "semantic-ui-react";
+import { Button, Modal, Form, Header, Checkbox } from "semantic-ui-react";
 import { useFormik } from "formik";
 
-import { myFetch } from "../../../../utils/myFetch";
-import { loadData } from "../../../../utils/form/loadData";
-import { transformDataToForm } from "../../../../utils/form/transformDataToForm";
-import { transformDataToDB } from "../../../../utils/form/transformDataToDB";
-import { positions } from "../../../../utils/constants";
-import { saveData } from "../../../../utils/form/saveData";
+import { loadData } from "../../../utils/form/loadData";
+import { extractFormValuesFromPlayer } from "../../../utils/form/extractFormValuesFromPlayer";
+import { extractPlayerFromFormValues } from "../../../utils/form/extractPlayerFromFormValues";
+import { updatePlayerById } from "../../../utils/form/updatePlayerById";
+import { createPlayer } from "../../../utils/form/createPlayer";
+import { PositionSelector } from "./PositionSelector";
+import { PlayerEditorHeader } from "./PlayerEditorHeader";
+import { PlayerImage } from "./PlayerImage";
+import { TeamSelector } from "./TeamSelector";
 
 const initial = {
     firstName: "",
@@ -56,100 +50,74 @@ const validate = (values) => {
     return errors;
 };
 
-export const PlayerEditor = ({ open, onClose, value }) => {
-    const [playerFrame, setPlayerFrame] = useState({
+export const PlayerEditor = ({ open, onClose, playerId }) => {
+    const [state, setState] = useState({
         player: initial,
         loading: { player: true, avatar: true },
         error: false,
         teams: undefined,
     });
 
-    const options = positions.map((position) => {
-        return { key: position.id, value: position.name, text: position.name };
-    });
+    useEffect(() => {
+        if (!playerId) {
+            return;
+        }
 
-    useEffect(async () => {
-        if (value) {
-            // --- Data Loading ---
-            setPlayerFrame((state) => {
+        const loadPlayer = async (playerId) => {
+            setState((state) => {
                 return {
                     ...state,
                     loading: { ...state.loading, player: true },
                 };
             });
-            const player = await loadData(`player/${value}`, {
+
+            const player = await loadData(`player/${playerId}`, {
                 include: ["team"],
             });
-            // --- /Data Loading ---
 
-            // --- Transform Data To Form Format---
-            const formData = transformDataToForm(player);
-            setPlayerFrame((state) => {
+            const values = extractFormValuesFromPlayer(player);
+
+            setState((state) => {
                 return {
                     ...state,
-                    player: formData,
+                    player: values,
                     loading: { ...state.loading, player: false },
                 };
             });
-            // --- /Transform Data To Form ---
-        }
-    }, [value]);
+        };
+
+        loadPlayer(playerId);
+    }, [playerId]);
 
     const submitHandler = async (values) => {
-        // --- Transform Data To DB Format ---
-        const dbData = transformDataToDB(values);
-        // --- /Transform Data To DB Format ---
+        const player = extractPlayerFromFormValues(values);
 
-        // --- Data Saving ---
-        saveData(dbData, !!value);
-        // --- /Data Saving ---
-        setPlayerFrame((state) => {
-            return {
-                ...state,
-                loading: { ...state.loading, avatar: true },
-                error: false,
-            };
-        });
-        onClose(false);
+        if (playerId) {
+            await updatePlayerById(player);
+        } else {
+            await createPlayer(player);
+        }
+
+        onClose();
     };
 
-    // --- Use Data In Form ---
     const formik = useFormik({
         enableReinitialize: true,
-        initialValues: playerFrame.player,
+        initialValues: state.player,
         validate,
         onSubmit: submitHandler,
     });
-    // --- /Use Data In Form ---
-
-    useEffect(async () => {
-        const fetchedObject = await myFetch("team", { order: "fullName" });
-        const data = fetchedObject.parsedBody;
-        setPlayerFrame((state) => {
-            return { ...state, teams: data.data };
-        });
-    }, []);
 
     const deleteHandler = () => {
-        fetch(`rest/player/${value}`, {
+        fetch(`rest/player/${playerId}`, {
             method: "DELETE",
         });
-        closeHandler();
-    };
 
-    const closeHandler = () => {
         onClose(false);
-        setPlayerFrame((state) => {
-            return {
-                player: initial,
-                loading: { ...state.loading, avatar: true },
-                error: false,
-            };
-        });
     };
 
     return (
-        <Modal onClose={() => onClose(false)} open={open}>
+        <Modal onClose={onClose} open={open}>
             <Modal.Header>
                 <Header floated="right">
                     <Checkbox
@@ -165,43 +133,10 @@ export const PlayerEditor = ({ open, onClose, value }) => {
                         }
                     />
                 </Header>
-                {value ? (
-                    <>
-                        <Header
-                            floated="left"
-                            as="h2"
-                        >{`${playerFrame.player.firstName} ${playerFrame.player.lastName}`}</Header>
-                        <Label color="grey">{playerFrame.player.id}</Label>
-                    </>
-                ) : (
-                    "Create new player"
-                )}
+                <PlayerEditorHeader player={state.player} />
             </Modal.Header>
             <Modal.Content image>
-                {playerFrame.loading.avatar && (
-                    <Placeholder style={{ height: 168, width: 168 }}>
-                        <Placeholder.Image square />
-                    </Placeholder>
-                )}
-                <Image
-                    src={
-                        playerFrame.error || !value
-                            ? "https://react.semantic-ui.com/images/avatar/small/matthew.png"
-                            : `https://cms.nhl.bamgrid.com/images/headshots/current/168x168/${playerFrame.player.id}.jpg`
-                    }
-                    wrapped
-                    onLoad={() =>
-                        setPlayerFrame({
-                            ...playerFrame,
-                            loading: { ...playerFrame.loading, avatar: false },
-                        })
-                    }
-                    onError={() =>
-                        setPlayerFrame((state) => {
-                            return { ...state, error: true };
-                        })
-                    }
-                />
+                <PlayerImage playerId={playerId} />
                 <Modal.Description>
                     <Form>
                         <Form.Group widths="equal">
@@ -259,59 +194,30 @@ export const PlayerEditor = ({ open, onClose, value }) => {
                                 onChange={formik.handleChange}
                                 onBlur={formik.handleBlur}
                             />
-                            <Form.Dropdown
+                            <TeamSelector
                                 name="team"
                                 label="Team"
-                                placeholder="Team"
-                                options={(playerFrame.teams || []).map(
-                                    (team) => {
-                                        return {
-                                            key: team.id,
-                                            value: team.id,
-                                            text: team.commonName,
-                                            image: {
-                                                avatar: true,
-                                                src: `rest/team/${team.id}.svg`,
-                                            },
-                                        };
-                                    }
-                                )}
-                                selection
-                                error={
-                                    formik.touched.team && formik.errors.team
-                                }
-                                value={formik.values.team}
-                                onChange={(_, { value }) =>
-                                    formik.setFieldValue("team", value)
-                                }
+                                formik={formik}
                             />
-                            <Form.Dropdown
+                            <PositionSelector
                                 name="position"
                                 label="Position"
-                                placeholder="Position"
-                                options={options}
-                                selection
-                                error={
-                                    formik.touched.position &&
-                                    formik.errors.position
-                                }
-                                value={formik.values.position}
-                                onChange={(_, { value }) =>
-                                    formik.setFieldValue("position", value)
-                                }
+                                formik={formik}
                             />
                         </Form.Group>
                     </Form>
                 </Modal.Description>
             </Modal.Content>
             <Modal.Actions>
-                <Button
-                    content="Delete"
-                    color="red"
-                    labelPosition="right"
-                    icon={{ name: "user delete", color: "grey" }}
-                    onClick={deleteHandler}
-                />
+                {playerId && (
+                    <Button
+                        content="Delete"
+                        color="red"
+                        labelPosition="right"
+                        icon={{ name: "user delete", color: "grey" }}
+                        onClick={deleteHandler}
+                    />
+                )}
                 <Button
                     content="Save"
                     labelPosition="right"
@@ -324,7 +230,7 @@ export const PlayerEditor = ({ open, onClose, value }) => {
                     color="orange"
                     labelPosition="right"
                     icon={{ name: "cancel", color: "yellow" }}
-                    onClick={closeHandler}
+                    onClick={() => onClose(false)}
                 />
             </Modal.Actions>
         </Modal>
