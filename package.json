@@ -18,13 +18,18 @@
           }
         }
       ],
-      "@babel/react"
+      ["@babel/preset-react",
+      {
+        "runtime": "automatic",
+        "importSource": "@welldone-software/why-did-you-render"
+      }]
     ]
   },
   "devDependencies": {
     "@babel/core": "^7.15.0",
     "@babel/preset-env": "^7.15.0",
     "@babel/preset-react": "^7.14.5",
+    "@welldone-software/why-did-you-render": "^6.2.1",
     "babel-loader": "^8.2.2",
     "css-loader": "^6.2.0",
     "css-minimizer-webpack-plugin": "^3.0.2",
