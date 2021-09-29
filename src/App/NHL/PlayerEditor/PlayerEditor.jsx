@@ -8,8 +8,10 @@ import { PlayerImage } from "./PlayerImage";
 import { TeamSelector } from "./TeamSelector";
 
 export const PlayerEditor = ({ open, onClose, playerId }) => {
-    const { values, errors, touched, loading, handlers, formik } =
-        usePlayerEditor(playerId, onClose);
+    const { values, errors, touched, loading, handlers } = usePlayerEditor(
+        playerId,
+        onClose
+    );
 
     return (
         <Modal onClose={handlers.close} open={open}>
@@ -19,7 +21,7 @@ export const PlayerEditor = ({ open, onClose, playerId }) => {
                         toggle
                         name="forceRefresh"
                         label="Force refresh"
-                        checked={formik.values.forceRefresh}
+                        checked={values.forceRefresh}
                         onChange={() =>
                             handlers.toggle(
                                 "forceRefresh",
@@ -84,13 +86,21 @@ export const PlayerEditor = ({ open, onClose, playerId }) => {
                             <TeamSelector
                                 name="team"
                                 label="Team"
-                                formik={formik}
+                                error={touched.team && errors.team}
+                                value={values.team}
+                                onChange={(_, { value }) =>
+                                    handlers.toggle("team", value)
+                                }
                                 loading={loading}
                             />
                             <PositionSelector
                                 name="position"
                                 label="Position"
-                                formik={formik}
+                                error={touched.position && errors.position}
+                                value={values.position}
+                                onChange={(_, { value }) =>
+                                    handlers.toggle("position", value)
+                                }
                                 loading={loading}
                             />
                         </Form.Group>

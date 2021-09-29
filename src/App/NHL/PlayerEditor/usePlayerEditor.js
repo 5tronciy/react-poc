@@ -123,7 +123,6 @@ export const usePlayerEditor = (playerId, onClose) => {
             change: formik.handleChange,
             blur: formik.handleBlur,
         },
-        formik: formik,
     };
 };
 

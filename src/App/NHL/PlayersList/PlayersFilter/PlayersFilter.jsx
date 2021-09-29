@@ -3,12 +3,10 @@ import { Input, Button, Icon } from "semantic-ui-react";
 import s from "./PlayersFilter.less";
 import { positions } from "../../../../utils/constants";
 import { PlayerEditor } from "../../PlayerEditor/PlayerEditor";
-import Clock from "../../../Home/Clock";
 
 export const PlayersFilter = ({ onChange, value }) => {
-    // console.log(onChange, value);
     const [open, setOpen] = useState(false);
-    // console.log(open);
+
     const handleToggle = (val) => {
         const currentIndex = value.checked.indexOf(val);
         const newChecked = [...value.checked];
@@ -62,8 +60,9 @@ export const PlayersFilter = ({ onChange, value }) => {
                     ))}
                 </Button.Group>
             </div>
-            {/* {open && <Clock />} */}
-            {open && <PlayerEditor open={open} onClose={setOpen} />}
+            {open && (
+                <PlayerEditor open={open} onClose={() => setOpen(false)} />
+            )}
         </div>
     );
 };
