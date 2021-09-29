@@ -2,7 +2,7 @@ import React from "react";
 import { Form } from "semantic-ui-react";
 import { positions } from "../../../utils/constants";
 
-export const PositionSelector = ({ name, label, formik }) => {
+export const PositionSelector = ({ name, label, formik, loading }) => {
     const options = positions.map((position) => {
         return { key: position.id, value: position.name, text: position.name };
     });
@@ -17,6 +17,7 @@ export const PositionSelector = ({ name, label, formik }) => {
             error={formik.touched.position && formik.errors.position}
             value={formik.values.position}
             onChange={(_, { value }) => formik.setFieldValue("position", value)}
+            loading={loading}
         />
     );
 };

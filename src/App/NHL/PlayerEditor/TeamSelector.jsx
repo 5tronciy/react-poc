@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Form } from "semantic-ui-react";
 import { myFetch } from "../../../utils/myFetch";
 
-export const TeamSelector = ({ name, label, formik }) => {
+export const TeamSelector = ({ name, label, formik, loading }) => {
     const [options, setOptions] = useState({ teams: [] });
 
     useEffect(() => {
@@ -37,6 +37,7 @@ export const TeamSelector = ({ name, label, formik }) => {
             error={formik.touched.team && formik.errors.team}
             value={formik.values.team}
             onChange={(_, { value }) => formik.setFieldValue("team", value)}
+            loading={loading}
         />
     );
 };
