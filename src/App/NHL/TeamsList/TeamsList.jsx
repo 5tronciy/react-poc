@@ -4,6 +4,7 @@ import s from "./TeamsList.less";
 import { TeamsFilter } from "./TeamsFilter/TeamsFilter";
 import { myFetch } from "../../../utils/myFetch";
 import { delay } from "../../../utils/constants";
+import { TeamsListItem } from "./TeamsListItem/TeamsListItem";
 
 export const TeamsList = ({ selected, setSelected }) => {
     const [teams, setTeams] = useState(undefined);
@@ -60,21 +61,26 @@ export const TeamsList = ({ selected, setSelected }) => {
                         />
                         <List selection verticalAlign="middle">
                             {(teams || []).map((team) => (
-                                <List.Item
-                                    active={selected && team.id === selected}
-                                    key={team.id}
-                                    onClick={() => {
-                                        setSelected(team.id);
-                                    }}
-                                >
-                                    <Image
-                                        avatar
-                                        src={`rest/team/${team.id}.svg`}
-                                    />
-                                    <List.Content>
-                                        {team.commonName}
-                                    </List.Content>
-                                </List.Item>
+                                <TeamsListItem
+                                    item={team}
+                                    selected={selected}
+                                    select={setSelected}
+                                />
+                                // <List.Item
+                                //     active={selected && team.id === selected}
+                                //     key={team.id}
+                                //     onClick={() => {
+                                //         setSelected(team.id);
+                                //     }}
+                                // >
+                                //     <Image
+                                //         avatar
+                                //         src={`rest/team/${team.id}.svg`}
+                                //     />
+                                //     <List.Content>
+                                //         {team.commonName}
+                                //     </List.Content>
+                                // </List.Item>
                             ))}
                         </List>
                     </div>
