@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Form } from "semantic-ui-react";
-import { myFetch } from "../../../utils/myFetch";
+import { myFetch } from "../../../../utils/myFetch";
 
 export const TeamSelector = ({
     name,

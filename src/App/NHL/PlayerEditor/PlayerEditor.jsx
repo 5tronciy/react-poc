@@ -2,10 +2,10 @@ import React from "react";
 import { Button, Modal, Form, Header, Checkbox } from "semantic-ui-react";
 
 import usePlayerEditor from "./usePlayerEditor";
-import { PositionSelector } from "./PositionSelector";
-import { PlayerEditorHeader } from "./PlayerEditorHeader";
-import { PlayerImage } from "./PlayerImage";
-import { TeamSelector } from "./TeamSelector";
+import { PositionSelector } from "./PositionSelector/PositionSelector";
+import { PlayerEditorHeader } from "./PlayerEditorHeader/PlayerEditorHeader";
+import { PlayerImage } from "./PlayerImage/PlayerImage";
+import { TeamSelector } from "./TeamSelector/TeamSelector";
 
 export const PlayerEditor = ({ open, onClose, playerId }) => {
     const { values, errors, touched, loading, handlers } = usePlayerEditor(

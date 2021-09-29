@@ -1,6 +1,6 @@
 import React from "react";
 import { Form } from "semantic-ui-react";
-import { positions } from "../../../utils/constants";
+import { positions } from "../../../../utils/constants";
 
 export const PositionSelector = ({
     name,
