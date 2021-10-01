@@ -1,21 +1,31 @@
-import React, { useState } from "react";
+import * as React from "react";
+import { useState, Dispatch, SetStateAction } from "react";
 import { Input, Button, Icon } from "semantic-ui-react";
 import s from "./PlayersFilter.less";
 import { positions } from "../../../../utils/constants";
 import { PlayerEditor } from "../../PlayerEditor/PlayerEditor";
 
-export const PlayersFilter = ({ onChange, value }) => {
+type Props = {
+    onChange: Dispatch<SetStateAction<string>>;
+    value: {
+        query: string;
+        checked: number[];
+        setChecked: Dispatch<SetStateAction<number[]>>;
+    };
+};
+
+export const PlayersFilter = (props: Props) => {
     const [open, setOpen] = useState(false);
 
-    const handleToggle = (val) => {
-        const currentIndex = value.checked.indexOf(val);
-        const newChecked = [...value.checked];
+    const handleToggle = (val: number) => {
+        const currentIndex = props.value.checked.indexOf(val);
+        const newChecked = [...props.value.checked];
         if (currentIndex === -1) {
             newChecked.push(val);
         } else {
             newChecked.splice(currentIndex, 1);
         }
-        value.setChecked(newChecked);
+        props.value.setChecked(newChecked);
     };
 
     return (
@@ -38,9 +48,9 @@ export const PlayersFilter = ({ onChange, value }) => {
                     icon="search"
                     placeholder="Find player"
                     type="text"
-                    value={value.query}
+                    value={props.value.query}
                     onChange={(e) => {
-                        onChange(e.currentTarget.value);
+                        props.onChange(e.currentTarget.value);
                     }}
                 />
             </div>
@@ -50,8 +60,8 @@ export const PlayersFilter = ({ onChange, value }) => {
                         <Button
                             key={position.id}
                             active={
-                                value.checked &&
-                                value.checked.includes(position.id)
+                                props.value.checked &&
+                                props.value.checked.includes(position.id)
                             }
                             onClick={() => handleToggle(position.id)}
                         >

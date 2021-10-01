@@ -1,5 +1,14 @@
-import React from "react";
-import { Button, Modal, Form, Header, Checkbox } from "semantic-ui-react";
+import * as React from "react";
+import { MouseEvent } from "react";
+import {
+    Button,
+    Modal,
+    Form,
+    Header,
+    Checkbox,
+    ButtonProps,
+    ModalProps,
+} from "semantic-ui-react";
 
 import usePlayerEditor from "./usePlayerEditor";
 import { PositionSelector } from "./PositionSelector/PositionSelector";
@@ -7,14 +16,23 @@ import { PlayerEditorHeader } from "./PlayerEditorHeader/PlayerEditorHeader";
 import { PlayerImage } from "./PlayerImage/PlayerImage";
 import { TeamSelector } from "./TeamSelector/TeamSelector";
 
-export const PlayerEditor = ({ open, onClose, playerId }) => {
+type Props = {
+    open?: boolean;
+    onClose: (
+        event?: MouseEvent<HTMLElement, globalThis.MouseEvent>,
+        data?: ModalProps | ButtonProps
+    ) => void;
+    playerId?: number;
+};
+
+export const PlayerEditor = (props: Props) => {
     const { values, errors, touched, loading, handlers } = usePlayerEditor(
-        playerId,
-        onClose
+        props.onClose,
+        props.playerId
     );
 
     return (
-        <Modal onClose={handlers.close} open={open}>
+        <Modal onClose={handlers.close} open={props.open}>
             <Modal.Header>
                 <Header floated="right">
                     <Checkbox
@@ -33,7 +51,7 @@ export const PlayerEditor = ({ open, onClose, playerId }) => {
                 <PlayerEditorHeader player={values} />
             </Modal.Header>
             <Modal.Content image>
-                <PlayerImage playerId={playerId} />
+                <PlayerImage playerId={props.playerId} />
                 <Modal.Description>
                     <Form>
                         <Form.Group widths="equal">
@@ -88,7 +106,7 @@ export const PlayerEditor = ({ open, onClose, playerId }) => {
                                 label="Team"
                                 error={touched.team && errors.team}
                                 value={values.team}
-                                onChange={(_, { value }) =>
+                                onChange={(_: any, { value }: any) =>
                                     handlers.toggle("team", value)
                                 }
                                 loading={loading}
@@ -98,7 +116,7 @@ export const PlayerEditor = ({ open, onClose, playerId }) => {
                                 label="Position"
                                 error={touched.position && errors.position}
                                 value={values.position}
-                                onChange={(_, { value }) =>
+                                onChange={(_: any, { value }: any) =>
                                     handlers.toggle("position", value)
                                 }
                                 loading={loading}
@@ -108,7 +126,7 @@ export const PlayerEditor = ({ open, onClose, playerId }) => {
                 </Modal.Description>
             </Modal.Content>
             <Modal.Actions>
-                {playerId && (
+                {props.playerId && (
                     <Button
                         content="Delete"
                         color="red"
@@ -129,7 +147,7 @@ export const PlayerEditor = ({ open, onClose, playerId }) => {
                     color="orange"
                     labelPosition="right"
                     icon={{ name: "cancel", color: "yellow" }}
-                    onClick={onClose}
+                    onClick={props.onClose}
                 />
             </Modal.Actions>
         </Modal>

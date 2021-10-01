@@ -8,9 +8,9 @@ export const extractPlayerFromFormValues = (
         middleName: data.middleName || null,
         lastName: data.lastName,
         birthDate: data.birthDate || null,
-        team: data.team,
+        team: Number(data.team),
         position: data.position,
-        id: data.id,
+        id: Number(data.id),
         forceRefresh: data.forceRefresh,
     };
 };

@@ -1,5 +1,16 @@
+type Filter = {
+    exp: string;
+    params: { [key: string]: string };
+};
+
+type Data<T> = {
+    data: T[];
+    success: boolean;
+    total: number;
+};
+
 export interface IParams {
-    filter?: string;
+    filter?: Filter | string | string[];
     include?: string[];
     order?: string;
 }
@@ -8,7 +19,7 @@ export const myFetch = async <T>(
     endpoint: string,
     { filter, include, order }: IParams,
     signal?: AbortSignal
-): Promise<{ response: Response; parsedBody: T }> => {
+): Promise<{ response: Response; parsedBody: Data<T> }> => {
     const blocks: string[] = [];
     if (filter) {
         blocks.push(`cayenneExp=${encodeURIComponent(JSON.stringify(filter))}`);

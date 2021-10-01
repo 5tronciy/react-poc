@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import * as React from "react";
+import { useState, useEffect } from "react";
 import { Loader, Card, Segment } from "semantic-ui-react";
 import s from "./PlayersList.less";
 import { PlayersFilter } from "./PlayersFilter/PlayersFilter";
@@ -6,27 +7,35 @@ import { PlayerCard } from "./PlayerCard/PlayerCard";
 import { PlayerEditor } from "../PlayerEditor/PlayerEditor";
 import { myFetch } from "../../../utils/myFetch";
 import { positions, delay } from "../../../utils/constants";
+import { Player } from "../../../utils/form/types";
 
-const map = positions.reduce(
+const map: { [key: string]: string } = positions.reduce(
     (acc, item) => ({ ...acc, [item.id]: item.name }),
     {}
 );
 
-export const PlayersList = ({ team }) => {
-    const [players, setPlayers] = useState(undefined);
-    const [query, setQuery] = useState("");
-    const [checked, setChecked] = useState([]);
-    const [open, setOpen] = useState(false);
-    const [player, setPlayer] = useState({});
+type Props = {
+    team: number;
+};
+
+export const PlayersList = (props: Props) => {
+    const [players, setPlayers] = useState<Player[]>();
+    const [query, setQuery] = useState<string>("");
+    const [checked, setChecked] = useState<number[]>([]);
+    const [open, setOpen] = useState<boolean>(false);
+    const [player, setPlayer] = useState<Player>();
 
     const filter = () => {
-        const filterBuilder = {
+        const filterBuilder: {
+            parts: string[];
+            args: { [key: string]: string };
+        } = {
             parts: [],
             args: {},
         };
 
         filterBuilder.parts.push("team = $team");
-        filterBuilder.args.team = team;
+        filterBuilder.args.team = props.team.toString();
 
         filterBuilder.parts.push("lastName like $name");
         filterBuilder.args.name = `%${query}%`;
@@ -55,7 +64,7 @@ export const PlayersList = ({ team }) => {
         const signal = controller.signal;
 
         const timeOutId = setTimeout(async () => {
-            const fetchedObject = await myFetch(
+            const fetchedObject = await myFetch<Player>(
                 "player",
                 {
                     filter: filter(),
@@ -63,27 +72,30 @@ export const PlayersList = ({ team }) => {
                 },
                 signal
             );
-            const data = fetchedObject.parsedBody;
-            setPlayers(data.data);
+            const data = fetchedObject.parsedBody.data;
+            setPlayers(data);
         }, delay);
 
-        return () => controller.abort() || clearTimeout(timeOutId);
+        return (() => controller.abort()) || clearTimeout(timeOutId);
     }, [query]);
 
-    useEffect(async () => {
-        const fetchedObject = await myFetch("player", {
-            filter: filter(),
-            order: `[{"property":"position"},{"property":"lastName"},{"property":"firstName"}]`,
-        });
-        const data = fetchedObject.parsedBody;
+    useEffect(() => {
+        const getPlayers = async () => {
+            const fetchedObject = await myFetch<Player>("player", {
+                filter: filter(),
+                order: `[{"property":"position"},{"property":"lastName"},{"property":"firstName"}]`,
+            });
+            const data = fetchedObject.parsedBody;
 
-        setPlayers(data.data);
-    }, [team, checked]);
+            setPlayers(data.data);
+        };
+        getPlayers();
+    }, [props.team, checked]);
 
     useEffect(() => {
         setQuery("");
         setChecked([]);
-    }, [team]);
+    }, [props.team]);
 
     return (
         <div className={s.container}>
@@ -116,7 +128,7 @@ export const PlayersList = ({ team }) => {
                     </div>
                 </Segment>
             </Segment.Group>
-            {player.id && (
+            {player && (
                 <PlayerEditor
                     open={open}
                     onClose={() => setOpen(false)}

@@ -1,13 +1,21 @@
-import React, { useState } from "react";
-import { Menu } from "semantic-ui-react";
+import * as React from "react";
+import { useState, MouseEvent } from "react";
+import { Menu, MenuItemProps } from "semantic-ui-react";
 import Home from "./Home";
 import Shooting from "./Shooting";
 import Nhl from "./NHL/NHL";
 import "./App.less";
 
 const App = () => {
-    const [state, setState] = useState("nhl");
-    const handleItemClick = (e, { name }) => setState(name);
+    const [state, setState] = useState<string | undefined>("nhl");
+
+    const handleItemClick:
+        | ((
+              event: MouseEvent<HTMLAnchorElement, globalThis.MouseEvent>,
+              data: MenuItemProps
+          ) => void)
+        | undefined = (e, data) => setState(data.name);
+
     return (
         <div className="app">
             <div className="menu">

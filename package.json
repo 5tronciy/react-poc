@@ -2,6 +2,7 @@
   "name": "react-poc",
   "version": "1.0.0",
   "description": "",
+  "main":"src/index.tsx",
   "scripts": {
     "build": "webpack --config webpack.prod.js",
     "dev": "webpack-dev-server --config webpack.dev.js --open"
@@ -18,17 +19,20 @@
           }
         }
       ],
-      ["@babel/preset-react",
-      {
-        "runtime": "automatic",
-        "importSource": "@welldone-software/why-did-you-render"
-      }]
+      [
+        "@babel/preset-react",
+        {
+          "runtime": "automatic",
+          "importSource": "@welldone-software/why-did-you-render"
+        }
+      ]
     ]
   },
   "devDependencies": {
     "@babel/core": "^7.15.0",
     "@babel/preset-env": "^7.15.0",
     "@babel/preset-react": "^7.14.5",
+    "@types/react-dom": "^17.0.9",
     "@welldone-software/why-did-you-render": "^6.2.1",
     "babel-loader": "^8.2.2",
     "css-loader": "^6.2.0",

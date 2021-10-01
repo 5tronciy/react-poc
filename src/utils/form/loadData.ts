@@ -1,10 +1,10 @@
 import { myFetch, IParams } from "../myFetch";
-import { Player } from "./types";
+import { Player, PlayerFetched } from "./types";
 
 export const loadData = async (
     endpoint: string,
     params: IParams
-): Promise<Player> => {
-    const resp = await myFetch<{ data: Player[] }>(endpoint, params);
+): Promise<PlayerFetched> => {
+    const resp = await myFetch<PlayerFetched>(endpoint, params);
     return resp.parsedBody.data[0];
 };

@@ -12,7 +12,7 @@ export interface Player {
     firstName: string;
     middleName: string | null;
     lastName: string;
-    position: Position;
+    position: string;
     forceRefresh: boolean;
 }
 
@@ -24,7 +24,7 @@ export interface PlayerSerialized extends Player {
     team: number;
 }
 
-export interface Team {
+export type Team = {
     id: number;
     abbrev: string;
     active: boolean;
@@ -33,8 +33,15 @@ export interface Team {
     fullName: string;
     generalManager: string;
     location: string;
-}
+};
 
-export interface PlayerFormData extends Player {
-    team: number;
-}
+export type PlayerFormData = {
+    team: string;
+    id: string;
+    birthDate: string;
+    firstName: string;
+    middleName: string;
+    lastName: string;
+    position: string;
+    forceRefresh: boolean;
+};

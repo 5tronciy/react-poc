@@ -1,11 +1,12 @@
-import React, { useState } from "react";
+import * as React from "react";
+import { useState } from "react";
 import s from "./Nhl.less";
 
 import { TeamsList } from "./TeamsList/TeamsList";
 import { PlayersList } from "./PlayersList/PlayersList";
 
 const Nhl = () => {
-    const [selectedTeam, setSelectedTeam] = useState(null);
+    const [selectedTeam, setSelectedTeam] = useState<number | null>(null);
 
     return (
         <div className={s.wrapper}>

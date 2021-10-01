@@ -5,7 +5,7 @@ require("dotenv").config();
 
 module.exports = {
     mode: "development",
-    entry: "./src/index.js",
+    entry: "./src/index.tsx",
     devtool: "inline-source-map",
     devServer: {
         port: process.env.PORT || 3000,

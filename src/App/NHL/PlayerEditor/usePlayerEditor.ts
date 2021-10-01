@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from "react";
-
+import { useEffect, useState } from "react";
 import { useFormik } from "formik";
 
 import { loadData } from "../../../utils/form/loadData";
@@ -7,8 +6,9 @@ import { extractFormValuesFromPlayer } from "../../../utils/form/extractFormValu
 import { extractPlayerFromFormValues } from "../../../utils/form/extractPlayerFromFormValues";
 import { updatePlayerById } from "../../../utils/form/updatePlayerById";
 import { createPlayer } from "../../../utils/form/createPlayer";
+import { PlayerFetched, PlayerFormData } from "../../../utils/form/types";
 
-const initial = {
+const initial: PlayerFormData = {
     firstName: "",
     middleName: "",
     lastName: "",
@@ -19,8 +19,12 @@ const initial = {
     forceRefresh: false,
 };
 
-const validate = (values) => {
-    const errors = {};
+type Errors = {
+    [key: string]: string;
+};
+
+const validate = (values: PlayerFormData) => {
+    const errors: Errors = {};
     const regExpDate = /\d{4}\-(0?[1-9]|1[012])\-(0?[1-9]|[12][0-9]|3[01])*/;
 
     if (!values.firstName) {
@@ -46,8 +50,13 @@ const validate = (values) => {
     return errors;
 };
 
-export const usePlayerEditor = (playerId, onClose) => {
-    const [state, setState] = useState({
+type State = {
+    player: PlayerFormData;
+    loading: boolean;
+};
+
+export const usePlayerEditor = (onClose: () => void, playerId?: number) => {
+    const [state, setState] = useState<State>({
         player: initial,
         loading: false,
     });
@@ -57,7 +66,7 @@ export const usePlayerEditor = (playerId, onClose) => {
             return;
         }
 
-        const loadPlayer = async (playerId) => {
+        const loadPlayer = async (playerId: number): Promise<void> => {
             setState((state) => {
                 return {
                     ...state,
@@ -65,25 +74,22 @@ export const usePlayerEditor = (playerId, onClose) => {
                 };
             });
 
-            const player = await loadData(`player/${playerId}`, {
+            const player: PlayerFetched = await loadData(`player/${playerId}`, {
                 include: ["team"],
             });
 
             const values = extractFormValuesFromPlayer(player);
 
-            setState((state) => {
-                return {
-                    ...state,
-                    player: values,
-                    loading: false,
-                };
+            setState({
+                player: values,
+                loading: false,
             });
         };
 
         loadPlayer(playerId);
     }, [playerId]);
 
-    const submitHandler = async (values) => {
+    const submitHandler = async (values: PlayerFormData) => {
         const player = extractPlayerFromFormValues(values);
 
         if (playerId) {

@@ -1,8 +1,13 @@
-import React from "react";
+import * as React from "react";
 import { Input } from "semantic-ui-react";
 import s from "./TeamsFilter.less";
 
-export const TeamsFilter = ({ onChange, value }) => {
+type Props = {
+    onChange: (value: string) => void;
+    value: string;
+};
+
+export const TeamsFilter = (props: Props) => {
     return (
         <div className={s.container}>
             <Input
@@ -10,9 +15,9 @@ export const TeamsFilter = ({ onChange, value }) => {
                 icon="search"
                 placeholder="Find team"
                 type="text"
-                value={value}
+                value={props.value}
                 onChange={(e) => {
-                    onChange(e.currentTarget.value);
+                    props.onChange(e.currentTarget.value);
                 }}
             />
         </div>
